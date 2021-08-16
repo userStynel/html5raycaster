@@ -54,6 +54,10 @@ io.on('connection', (socket)=>{
     socket.on('input', (key)=>{
         user_list[socket.id].keyBuffer = key;
     });
+    socket.on('disconnect', (reason)=>{
+        console.log(socket);
+        DeleteUser(socket);
+    })
 })
 
 function sendingUserData(){
