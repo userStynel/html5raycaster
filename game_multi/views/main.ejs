@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>hello <%=name%></title>
+        <script src = "/socket.io.js"></script>
+    </head>
+    <script>
+        var name = "<%= name %>";
+        var socket = io();
+        var socketID;
+        window.addEventListener("keydown", (e)=>{
+            if(e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
+                socket.emit('input', e.key);
+            }
+        });
+        console.log(name);
+        socket.on('welcome', (data)=>{
+            map = data.map;
+            socketID = data.id;
+            sprite_map = data.sprite_map;
+            sprites.push(new Sprite(data.sprites.type, new Vector2(data.sprites.pos.x, data.sprites.pos.y)));
+            Init();
+        });
+        socket.emit('join_lobby', name);
+        socket.on('update', (data)=>{
+            others = [];
+            for(let id of Object.keys(data)){
+                let d = data[id];
+                if(id == socketID){
+                    player.pos = new Vector2(d.pos.x, d.pos.y);
+                    player.angle = d.angle;
+                    player.fov = d.fov;
+                    player.velocity = d.velocity;
+                    player.angular_velocity = d.angular_velocity;
+                }
+                else{
+                    others.push(new Sprite(2, new Vector2(d.pos.x, d.pos.y)));
+                }
+            }
+            update();
+        });
+    </script>
+    <body style = "background: #101010; color:white;">
+        <div style = "display: flex;">
+            <div style = "margin-right: 0.5rem;"> 
+                <h5 style="text-align:center;"> ONLINE </h5>
+                <canvas id = "map"></canvas>
+            </div>
+            <canvas id = "game"></canvas>
+        </div>
+    </body>
+    <script src = "/config.js"></script>
+    <script src = "/player.js"></script>
+    <script src = "/sprite.js"></script>
+    <script src = "/renderer.js"></script>
+    <script src = "/main.js"></script>
+</html>
