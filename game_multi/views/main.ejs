@@ -8,7 +8,14 @@
         var name = "<%= name %>";
         var socket = io();
         var socketID;
+
+        function sendMSG(){
+            let text = document.getElementById('msg').value;
+            document.getElementById('msg').value = '';
+            socket.emit('sendMSG', text);
+        }
         window.addEventListener("keydown", (e)=>{
+            if(document.getElementById('msg') === document.activeElement) return;
             if(e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
                 socket.emit('input', e.key);
             }
@@ -39,6 +46,14 @@
             }
             update();
         });
+        socket.on('MSG', (data)=>{
+            let chatbox  = document.getElementById('chatbox');
+            let p = document.createElement('p');
+            sender = data.sender;
+            text = data.text;
+            p.textContent = `${sender}: ${text}`;
+            chatbox.appendChild(p);
+        });
     </script>
     <body style = "background: #101010; color:white;">
         <div style = "display: flex;">
@@ -46,7 +61,16 @@
                 <h5 style="text-align:center;"> ONLINE </h5>
                 <canvas id = "map"></canvas>
             </div>
-            <canvas id = "game"></canvas>
+            <div style = "display:flex">
+                <canvas id = "game"></canvas>
+                <div>
+                    <h5>CHATTING</h5>
+                    <div id = "chatbox"></div>
+                    <form action = "javascript:sendMSG()">
+                        <input type = "text" id = 'msg'><input type = "submit">
+                    </form>
+                </div>
+            </div>
         </div>
     </body>
     <script src = "/config.js"></script>

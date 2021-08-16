@@ -55,8 +55,10 @@ io.on('connection', (socket)=>{
         user_list[socket.id].keyBuffer = key;
     });
     socket.on('disconnect', (reason)=>{
-        console.log(socket);
         DeleteUser(socket);
+    });
+    socket.on('sendMSG', (text)=>{
+        io.emit('MSG', {sender: user_list[socket.id].name, text: text});
     })
 })
 
@@ -65,7 +67,6 @@ function sendingUserData(){
     for(let id of Object.keys(user_list)){
         let user = user_list[id];
         let socket = user_list[id].socket;
-        user.processInput();
         let data = {
             angle: user.angle,
             pos: {x: user.pos.x, y: user.pos.y},
