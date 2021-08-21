@@ -2,22 +2,47 @@
 <html>
     <head>
         <title>hello <%=name%></title>
-        <script src = "/socket.io.js"></script>
+        <link rel = "stylesheet" href = "/style/hpbar.css">
+        <script src = "/scripts/socket.io.js"></script>
     </head>
     <script>
         var name = "<%= name %>";
         var socket = io();
         var socketID;
 
+        function checkShot(){
+            let my_pos = player.pos
+            let dir = new Vector2(1, 0).rotate(player.angle);
+
+            let x1 = my_pos.x, x2 = my_pos.add(dir).x;
+            let y1 = my_pos.y, y2 = my_pos.add(dir).y;
+
+            for(let i = 0; i<others.length; i++){
+                let other = others[i];
+                let other_pos = other.pos;
+                let x0 = other_pos.x, y0 = other_pos.y;
+                let det = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+                let d = Math.abs((x2 - x1)*(y1 - y0) - (x1 - x0) * (y2 - y1)) / det;
+                if(zBuffer[h/2] > my_pos.sub(other_pos).mag() && d <= 0.5)
+                    return others_id[i];
+            }
+            return 0;
+        }
         function sendMSG(){
             let text = document.getElementById('msg').value;
             document.getElementById('msg').value = '';
             socket.emit('sendMSG', text);
         }
         window.addEventListener("keydown", (e)=>{
+            console.log(e.key);
             if(document.getElementById('msg') === document.activeElement) return;
             if(e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
                 socket.emit('input', e.key);
+            }
+        });
+        window.addEventListener('keyup', (e)=>{
+            if(e.key == ' '){
+                socket.emit('shoot', checkShot());
             }
         });
         console.log(name);
@@ -31,6 +56,7 @@
         socket.emit('join_lobby', name);
         socket.on('update', (data)=>{
             others = [];
+            others_id = [];
             for(let id of Object.keys(data)){
                 let d = data[id];
                 if(id == socketID){
@@ -39,8 +65,10 @@
                     player.fov = d.fov;
                     player.velocity = d.velocity;
                     player.angular_velocity = d.angular_velocity;
+                    player.health = d.health;
                 }
                 else{
+                    others_id.push(id);
                     others.push(new Sprite(2, new Vector2(d.pos.x, d.pos.y)));
                 }
             }
@@ -49,23 +77,41 @@
         socket.on('MSG', (data)=>{
             let chatbox  = document.getElementById('chatbox');
             let p = document.createElement('p');
+            p.setAttribute('style', 'margin: 0px;')
             sender = data.sender;
             text = data.text;
             p.textContent = `${sender}: ${text}`;
             chatbox.appendChild(p);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            console.log(chatbox.scrollTop, chatbox.scrollHeight);
         });
+        socket.on('kill', (data)=>{
+            let sincegoup = document.getElementById('sincegoup');
+            let p = document.createElement('p');
+            p.setAttribute('style', 'margin:0');
+            p.textContent = `${data.murder} 🏹 ${data.victim}`;
+            sincegoup.appendChild(p);
+        });
+        socket.on('disconnect', (data)=>{
+            game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
+        })
     </script>
     <body style = "background: #101010; color:white;">
         <div style = "display: flex;">
             <div style = "margin-right: 0.5rem;"> 
                 <h5 style="text-align:center;"> ONLINE </h5>
                 <canvas id = "map"></canvas>
+                <div id = "hpbar" style = "--width: 50;" >
+                    <div>    
+                    </div>
+                </div>
+                <div id = "sincegoup"></div>
             </div>
             <div style = "display:flex">
                 <canvas id = "game"></canvas>
                 <div>
                     <h5 style = "text-align:center;">CHATTING</h5>
-                    <div id = "chatbox"></div>
+                    <div id = "chatbox" style = "height:200px; overflow:hidden;"></div>
                     <form action = "javascript:sendMSG()">
                         <div style = "display: flex;">
                         <input type = "text" id = 'msg' style = "background: none; border: none; border-bottom: 1px white solid;
@@ -79,9 +125,12 @@
             </div>
         </div>
     </body>
-    <script src = "/config.js"></script>
-    <script src = "/player.js"></script>
-    <script src = "/sprite.js"></script>
-    <script src = "/renderer.js"></script>
-    <script src = "/main.js"></script>
+    <script>
+        var hpbar = document.getElementById('hpbar');
+    </script>
+    <script src = "/scripts/config.js"></script>
+    <script src = "/scripts/player.js"></script>
+    <script src = "/scripts/sprite.js"></script>
+    <script src = "/scripts/renderer.js"></script>
+    <script src = "/scripts/main.js"></script>
 </html>

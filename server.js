@@ -17,6 +17,7 @@ var AddUser = require('./Library/users').AddUser;
 var DeleteUser = require('./Library/users').DeleteUser;
 const userInfo  = require('./Library/userInfo').userInfo;
 const Vector2 = require('./Library/userInfo').Vector2;
+const { isError } = require('util');
 
 var app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,15 +37,6 @@ server.listen(PORT, function(){
     console.log('server is on!');
 });
 
-function making_prevUserInfo(){
-    let ret = [];
-    for(let id of Object.keys(user_list)){
-        let user = user_list[id];
-        let data = {x: user.pos.x, y: user.pos.y};
-        ret.push(data);
-    }
-    return ret;
-}
 io.on('connection', (socket)=>{
     console.log('[LOG] new user is connected!');
     socket.emit('welcome', {map: map, sprite_map: sprite_map, sprites: sprites[0].serialize(), id: socket.id});
@@ -59,6 +51,16 @@ io.on('connection', (socket)=>{
     });
     socket.on('sendMSG', (text)=>{
         io.emit('MSG', {sender: user_list[socket.id].name, text: text});
+    });
+    socket.on('shoot', (msg)=>{
+        if(msg != 0 && typeof user_list[msg] != 'undefined' && user_list[msg].health > 0){
+            user_list[msg].health -= Math.ceil(Math.random()*10);
+            if(user_list[msg].health <= 0){
+                let murder_name = user_list[socket.id].name;
+                let victim_name = user_list[msg].name;
+                io.emit('kill', {murder: murder_name, victim: victim_name});
+            }
+        }
     })
 })
 
@@ -66,8 +68,8 @@ function sendingUserData(){
     let ret = {};
     for(let id of Object.keys(user_list)){
         let user = user_list[id];
-        let socket = user_list[id].socket;
         let data = {
+            health: user.health,
             angle: user.angle,
             pos: {x: user.pos.x, y: user.pos.y},
             fov: user.fov,
@@ -83,6 +85,11 @@ function update(){
         let user = user_list[id];
         let socket = user_list[id].socket;
         user.processInput();
+        if(user.health < 0){
+            let idd = socket.id;
+            socket.disconnect();
+            DeleteUser(idd);
+        }
     }
     let ret = sendingUserData();
     for(let id of Object.keys(user_list)){

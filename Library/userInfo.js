@@ -42,6 +42,7 @@ class userInfo{
         this.angular_velocity = (Math.PI/180) * 1;
         this.socket = socket;
         this.keyBuffer = null;
+        this.health = 100;
     }
     processInput(){
         if(this.keyBuffer === null) return;

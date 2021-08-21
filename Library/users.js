@@ -5,7 +5,7 @@ function AddUser(socket, userInfo){
 }
 
 function DeleteUser(socket){
-    delete user_list[socket.id];
+    delete user_list[socket];
 }
 
 exports.AddUser = AddUser;

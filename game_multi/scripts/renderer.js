@@ -6,8 +6,8 @@ function Render_FloorAndCeil(me){
     let a =  new Vector2(1, 0).rotate(angle-fov/2)
     let b =  new Vector2(1, 0).rotate(angle+fov/2)
 
-    let g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
-    let buffer = g.data;
+    // let g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
+    // let buffer = g.data;
 
     for(let y = game_canvas.height; y >= h/2; y-= size){
       
@@ -35,7 +35,11 @@ function Render_FloorAndCeil(me){
             buffer[idx + 3] = data_floor[0][texidx][3];
         }
     }
-    game_ctx.putImageData(g, 0, 0);
+    // game_ctx.putImageData(g, 0, 0);
+}
+
+function Render_Weapon(){
+    game_ctx.drawImage(wp_img, (game_canvas.width - wp_img.width)/2, game_canvas.height - wp_img.height);
 }
 
 function Render_Sprite(me){
@@ -47,6 +51,9 @@ function Render_Sprite(me){
     let dir =  new Vector2(1, 0).rotate(angle);
     let plane = new Vector2(0, Math.tan(fov/2)).rotate(angle);
     let ou = sprites.concat(others);
+    // let g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
+    // let buffer = g.data;
+    
     for(let i = 0; i<ou.length; i++)
     {
         let type = ou[i].type;
@@ -60,9 +67,9 @@ function Render_Sprite(me){
         let spriteHeight = Math.abs(parseInt((h) / (transformY)))*1.05;
         
         if(transformY < 0) continue;
-        let drawStartY = -spriteHeight / 2 + h / 2;
+        let drawStartY = (-spriteHeight / 2 + h / 2) | 0;
         if(drawStartY < 0) drawStartY = 0;
-        let drawEndY = spriteHeight / 2 + h / 2;
+        let drawEndY = (spriteHeight / 2 + h / 2) | 0;
         if(drawEndY >= h) drawEndY = h - 1;
 
         // drawEndY += 32; drawStartY += 32
@@ -78,18 +85,21 @@ function Render_Sprite(me){
         for(let x = rdrawStartX; x<=rdrawEndX; x++){
             if(zBuffer[x] < transformY) continue;
             let ratioA = (x - drawStartX) / (drawEndX - drawStartX);
-            game_ctx.drawImage(img_sprite[type-1], img_sprite[type-1].width * ratioA, 0, 1, img_sprite[type-1].height,
-                x, drawStartY, 1, drawEndY-drawStartY);
-            // for(let y = drawStartY; y<=drawEndY; y++){
-            //     let ratioA = (x - drawStartX) / (drawEndX - drawStartX);
-            //     let ratioB = (y - drawStartY) / (drawEndY - drawStartY);
-            //     game_ctx.drawImage(img_sprite[0], img_sprite[0].width * ratioA, img_sprite[0].height * ratioB, 1, 1,
-            //         x, y, 1, 1);
-            // }
+            // game_ctx.drawImage(img_sprite[type-1], img_sprite[type-1].width * ratioA, 0, 1, img_sprite[type-1].height,
+            //     x, drawStartY, 1, drawEndY-drawStartY);
+            for(let y = drawStartY; y<=drawEndY; y++){
+                let ratioB = (y - drawStartY) / (drawEndY - drawStartY);
+                let idx = 4 * (game_canvas.width * y + x);
+                let tx = (img_sprite[type-1].width * ratioA | 0) & (63);
+                let ty = (img_sprite[type-1].height * ratioB | 0) & (63);
+                let texidx = ty * 64 + tx
+                if( data_sprite[type-1][texidx][3] == 0) continue;
+                buffer[idx + 0] = data_sprite[type-1][texidx][0];
+                buffer[idx + 1] = data_sprite[type-1][texidx][1];
+                buffer[idx + 2] = data_sprite[type-1][texidx][2];
+                buffer[idx + 3] = data_sprite[type-1][texidx][3];
+            }
         }
-        // console.log(drawStartX, drawStartY);
-        // game_ctx.fillStyle = "pink";
-        // game_ctx.fillRect(drawStartX, drawStartY, spriteWidth, spriteHeight);
-        // console.log(i, spriteHeight, drawStartX, drawStartY, transformX, transformY);
     }
+    // game_ctx.putImageData(g, 0, 0);
 }
