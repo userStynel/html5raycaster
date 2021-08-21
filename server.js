@@ -17,7 +17,6 @@ var AddUser = require('./Library/users').AddUser;
 var DeleteUser = require('./Library/users').DeleteUser;
 const userInfo  = require('./Library/userInfo').userInfo;
 const Vector2 = require('./Library/userInfo').Vector2;
-const { isError } = require('util');
 
 var app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,9 +43,11 @@ io.on('connection', (socket)=>{
         AddUser(socket, new userInfo(data, new Vector2(10, 7), socket));
     })
     socket.on('input', (key)=>{
+        console.log('inputed', key);
         user_list[socket.id].keyBuffer = key;
     });
     socket.on('disconnect', (reason)=>{
+        console.log('disconnected');
         DeleteUser(socket);
     });
     socket.on('sendMSG', (text)=>{
@@ -79,6 +80,11 @@ function sendingUserData(){
         ret[id] = data;
     }
     return ret;
+}
+
+function preupdate(){
+    io.emit('pre_update');
+    
 }
 function update(){
     for(let id of Object.keys(user_list)){

@@ -46,7 +46,6 @@ function Render_Sprite(me){
     let pos = me.pos;
     let angle = me.angle;
     let fov = me.fov
-    let size = 1;
     
     let dir =  new Vector2(1, 0).rotate(angle);
     let plane = new Vector2(0, Math.tan(fov/2)).rotate(angle);

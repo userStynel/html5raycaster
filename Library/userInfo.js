@@ -63,6 +63,17 @@ class userInfo{
         this.keyBuffer = null;
         this.pos = this.pos.add(deltaPos);
     }
+    packing(){
+        let ret = {
+            pos: {x: this.pos.x, y: this.pos.y},
+            name: this.name,
+            velocity: this.velocity,
+            angular_velocity: this.angular_velocity,
+            health: this.health,
+            fov: this.fov
+        }
+        return ret;
+    }
 }
 
 exports.Vector2 = Vector2;

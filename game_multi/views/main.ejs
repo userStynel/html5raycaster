@@ -34,9 +34,9 @@
             socket.emit('sendMSG', text);
         }
         window.addEventListener("keydown", (e)=>{
-            console.log(e.key);
             if(document.getElementById('msg') === document.activeElement) return;
             if(e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
+                keyBuffer2.push(e.key);
                 socket.emit('input', e.key);
             }
         });
@@ -54,6 +54,9 @@
             Init();
         });
         socket.emit('join_lobby', name);
+        socket.on('pre_update', ()=>{
+            socket.emit('')
+        })
         socket.on('update', (data)=>{
             others = [];
             others_id = [];
@@ -74,6 +77,7 @@
             }
             update();
         });
+
         socket.on('MSG', (data)=>{
             let chatbox  = document.getElementById('chatbox');
             let p = document.createElement('p');
@@ -85,6 +89,7 @@
             chatbox.scrollTop = chatbox.scrollHeight;
             console.log(chatbox.scrollTop, chatbox.scrollHeight);
         });
+
         socket.on('kill', (data)=>{
             let sincegoup = document.getElementById('sincegoup');
             let p = document.createElement('p');
@@ -92,6 +97,7 @@
             p.textContent = `${data.murder} 🏹 ${data.victim}`;
             sincegoup.appendChild(p);
         });
+
         socket.on('disconnect', (data)=>{
             game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
         })

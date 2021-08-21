@@ -38,8 +38,6 @@ var wall_length = 2;
 var sprite_length = 2;
 var floor_length = 1;
 
-var img_files = ['wall_1.png', 'wall_2.png','wall_3.png','gun.png'];
-
 var img_gun;
 var img_knife;
 
@@ -54,3 +52,5 @@ var others_id = [];
 var data_wall = [];
 var data_floor = [];
 var data_sprite = [];
+
+var keyBuffer2 = [];
