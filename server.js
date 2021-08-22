@@ -64,11 +64,16 @@ function sendingUserData(){
 }
 
 function preupdate(){
-    io.emit('pre_update', update());
+    for(let id in user_list){
+        let user = user_list[id];
+        let socket = user.socket;
+        socket.emit('pre_update');
+    }
+    update();
     setTimeout(preupdate, 1000/32);
 }
 function update(){
-    for(let id of Object.keys(user_list)){
+    for(let id in user_list){
         let user = user_list[id];
         let socket = user_list[id].socket;
         user.processInput2();
@@ -79,7 +84,7 @@ function update(){
         }
     }
     let ret = sendingUserData();
-    for(let id of Object.keys(user_list)){
+    for(let id in user_list){
         let socket = user_list[id].socket;
         socket.emit('update', ret);
     }
