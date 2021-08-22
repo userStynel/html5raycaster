@@ -34,6 +34,7 @@ app.use('/', router);
 
 var server = http.createServer(app);
 var io = require('socket.io')(server);
+global.io = io;
 
 server.listen(PORT, function(){
     console.log('server is on!');
