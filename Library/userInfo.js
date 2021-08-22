@@ -38,7 +38,7 @@ class userInfo{
         this.pos = pos;
         this.name = name;
         this.fov = Math.PI/180 * 75;
-        this.velocity = 0.7;
+        this.velocity = 0.15;
         this.angular_velocity = (Math.PI/180) * 1;
         this.socket = socket;
         this.keyBuffer = null;
