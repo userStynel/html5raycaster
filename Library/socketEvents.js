@@ -13,7 +13,7 @@ function SOCKET_EVENTS(socket){
     });
     socket.on('disconnect', (reason)=>{
         console.log('disconnected');
-        DeleteUser(socket);
+        DeleteUser(socket.id);
     });
     socket.on('sendMSG', (text)=>{
         io.emit('MSG', {sender: user_list[socket.id].name, text: text});
