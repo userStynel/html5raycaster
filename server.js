@@ -17,15 +17,18 @@ var AddUser = require('./Library/users').AddUser;
 var DeleteUser = require('./Library/users').DeleteUser;
 const userInfo  = require('./Library/userInfo').userInfo;
 const Vector2 = require('./Library/userInfo').Vector2;
+const SOCKET_EVENTS = require('./Library/socketEvents').SOCKET_EVENTS;
 
 var app = express();
 const PORT = process.env.PORT || 3000;
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : true}));
+
 app.set('views', __dirname+'/game_multi/views');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 app.set('port', PORT);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : true}));
 app.use(static(__dirname+'/game_multi'));
 app.use('/', router);
 
@@ -39,30 +42,7 @@ server.listen(PORT, function(){
 io.on('connection', (socket)=>{
     console.log('[LOG] new user is connected!');
     socket.emit('welcome', {map: map, sprite_map: sprite_map, sprites: sprites[0].serialize(), id: socket.id});
-    socket.on('join_lobby', (data)=>{
-        AddUser(socket, new userInfo(data, new Vector2(10, 7), socket));
-    })
-    socket.on('input', (key)=>{
-        console.log('inputed', key);
-        user_list[socket.id].keyBuffer = key;
-    });
-    socket.on('disconnect', (reason)=>{
-        console.log('disconnected');
-        DeleteUser(socket);
-    });
-    socket.on('sendMSG', (text)=>{
-        io.emit('MSG', {sender: user_list[socket.id].name, text: text});
-    });
-    socket.on('shoot', (msg)=>{
-        if(msg != 0 && typeof user_list[msg] != 'undefined' && user_list[msg].health > 0){
-            user_list[msg].health -= Math.ceil(Math.random()*10);
-            if(user_list[msg].health <= 0){
-                let murder_name = user_list[socket.id].name;
-                let victim_name = user_list[msg].name;
-                io.emit('kill', {murder: murder_name, victim: victim_name});
-            }
-        }
-    })
+    SOCKET_EVENTS(socket);
 })
 
 function sendingUserData(){
@@ -83,14 +63,14 @@ function sendingUserData(){
 }
 
 function preupdate(){
-    io.emit('pre_update');
-    
+    io.emit('pre_update', update());
+    setTimeout(preupdate, 1000/32);
 }
 function update(){
     for(let id of Object.keys(user_list)){
         let user = user_list[id];
         let socket = user_list[id].socket;
-        user.processInput();
+        user.processInput2();
         if(user.health < 0){
             let idd = socket.id;
             socket.disconnect();
@@ -103,7 +83,8 @@ function update(){
         socket.emit('update', ret);
     }
     
-    setTimeout(update, 1000/32);
+    //setTimeout(update, 1000/32);
 }
 
-update();
+// update();
+preupdate();

@@ -174,3 +174,5 @@ class Player{
         this.cast();
     }
 }
+
+player = new Player(new Vector2(3, 2));

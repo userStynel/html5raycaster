@@ -42,6 +42,40 @@ function Render_Weapon(){
     game_ctx.drawImage(wp_img, (game_canvas.width - wp_img.width)/2, game_canvas.height - wp_img.height);
 }
 
+function Render_Wall(me){
+    // let g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
+    // let buffer = g.data;
+    for(let i = 0; i< player.Rays.length; i++){
+        let lay = player.Rays[i];
+        let perpWallDist = lay.perpWallDist;
+        let wallX = lay.wallX;
+        let type = lay.type;
+        let height = Math.abs(h / perpWallDist);
+        var drawStart = ((h - height) / 2) | 0;
+        var drawEnd = ((h + height) / 2) | 0;
+        if(drawStart < 0) 
+          drawStart = 0;
+        if(drawEnd >= h)
+            drawEnd = h-1;
+       for(let y = drawStart; y<drawEnd; y++){
+        let d = (y * 256 - h * 128 + height * 128) | 0;
+        let texY = ( d * 64/ (height * 256))/* | 0*/;
+        if (texY < 0) texY = 0;
+        // console.log(texY);
+        let idx = 4 * (game_canvas.width * y + i);
+        let texidx = (((wallX * img_wall[type-1].width)|0) + 64 * (texY | 0));
+        // console.log(i, texidx, ((wallX * img_wall[2].width)|0), (texY | 0));
+        buffer[idx + 0] = data_wall[type-1][texidx][0];
+        buffer[idx + 1] = data_wall[type-1][texidx][1];
+        buffer[idx + 2] = data_wall[type-1][texidx][2];
+        buffer[idx + 3] = data_wall[type-1][texidx][3];
+        // game_ctx.fillStyle = "yellow";
+        // game_ctx.fillRect(i, y, 1, 1);
+       }
+    }
+    // game_ctx.putImageData(g, 0, 0);
+}
+
 function Render_Sprite(me){
     let pos = me.pos;
     let angle = me.angle;
@@ -101,4 +135,11 @@ function Render_Sprite(me){
         }
     }
     // game_ctx.putImageData(g, 0, 0);
+}
+
+function Render_Game(me){
+    Render_FloorAndCeil(player);
+    Render_Wall(player);
+    Render_Sprite(player);
+    game_ctx.putImageData(g, 0, 0);
 }

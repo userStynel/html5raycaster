@@ -20,7 +20,8 @@ var game_canvas = document.getElementById('game');
 var game_ctx = game_canvas.getContext('2d');
 var g, buffer;
 
-// var 
+var player;
+
 var map = []
 var sprite_map = [];
 

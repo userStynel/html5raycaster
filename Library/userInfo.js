@@ -42,6 +42,7 @@ class userInfo{
         this.angular_velocity = (Math.PI/180) * 1;
         this.socket = socket;
         this.keyBuffer = null;
+        this.keyBuffer2 = [];
         this.health = 100;
     }
     processInput(){
@@ -61,6 +62,25 @@ class userInfo{
         else if(key == 'e')
             this.angle = fixAngular(this.angle + this.angular_velocity);
         this.keyBuffer = null;
+        this.pos = this.pos.add(deltaPos);
+    }
+    processInput2(){
+        if(this.keyBuffer2.length == 0) return;
+        let key = this.keyBuffer2[0];
+        let deltaPos = new Vector2(0, 0);
+        if(key == 'w')
+            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(this.velocity);
+        else if(key == 's')
+            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(-this.velocity);
+        else if(key == 'a')
+            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.velocity);
+        else if(key == 'd')
+            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.velocity);
+        else if(key == 'q')
+            this.angle = fixAngular(this.angle - this.angular_velocity);
+        else if(key == 'e')
+            this.angle = fixAngular(this.angle + this.angular_velocity);
+        this.keyBuffer2.shift();
         this.pos = this.pos.add(deltaPos);
     }
     packing(){
