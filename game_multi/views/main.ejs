@@ -35,13 +35,14 @@
         }
         window.addEventListener("keydown", (e)=>{
             if(document.getElementById('msg') === document.activeElement) return;
-            if(e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
+            if(e.key == 'f' || e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
                 keyBuffer2.push(e.key);
                 //socket.emit('input', e.key);
             }
         });
         window.addEventListener('keyup', (e)=>{
             if(e.key == ' '){
+                if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
                 socket.emit('shoot', checkShot());
             }
         });
@@ -81,6 +82,7 @@
         socket.emit('join_lobby', name);
     </script>
     <script src = "/scripts/config.js"></script>
+    <script src = "/scripts/animation.js"></script>
     <script src = "/scripts/loading.js"></script>
     <script src = "/scripts/player.js"></script>
     <script src = "/scripts/sprite.js"></script>

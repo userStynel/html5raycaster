@@ -55,3 +55,6 @@ var data_floor = [];
 var data_sprite = [];
 
 var keyBuffer2 = [];
+
+
+var gun_animated = false;

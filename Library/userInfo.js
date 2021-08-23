@@ -61,6 +61,8 @@ class userInfo{
             this.angle = fixAngular(this.angle - this.angular_velocity);
         else if(key == 'e')
             this.angle = fixAngular(this.angle + this.angular_velocity);
+        else if(key == 'f')
+            this.angle = fixAngular(this.angle + Math.PI);
         this.keyBuffer = null;
         this.pos = this.pos.add(deltaPos);
     }
@@ -80,8 +82,13 @@ class userInfo{
             this.angle = fixAngular(this.angle - this.angular_velocity);
         else if(key == 'e')
             this.angle = fixAngular(this.angle + this.angular_velocity);
+        else if(key == 'f')
+            this.angle = fixAngular(this.angle + Math.PI);
         this.keyBuffer2.shift();
-        this.pos = this.pos.add(deltaPos);
+
+        let temppos = this.pos.add(deltaPos);
+        if(map[(temppos.y|0)][(temppos.x|0)] != 0) return;
+        this.pos = temppos
     }
     packing(){
         let ret = {

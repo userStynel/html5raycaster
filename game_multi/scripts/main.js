@@ -1,5 +1,7 @@
+var anim;
 function Init(){
     Loading_Image(0);
+    Loading_ANIMATION();
     map_canvas.width = WIDTH * SIZE;
     map_canvas.height = HEIGHT * SIZE;
 

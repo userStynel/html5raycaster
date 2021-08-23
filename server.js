@@ -35,6 +35,7 @@ app.use('/', router);
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 global.io = io;
+global.map = map;
 
 server.listen(PORT, function(){
     console.log('server is on!');
@@ -48,7 +49,7 @@ io.on('connection', (socket)=>{
 
 function sendingUserData(){
     let ret = {};
-    for(let id of Object.keys(user_list)){
+    for(let id in user_list){
         let user = user_list[id];
         let data = {
             health: user.health,

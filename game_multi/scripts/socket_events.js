@@ -15,7 +15,11 @@ socket.on('pre_update', ()=>{
 socket.on('update', (data)=>{
     others = [];
     others_id = [];
-    for(let id of Object.keys(data)){
+    for(let id in ANIMATION_QUEUE){
+        let ret = ANIMATION_QUEUE[id].update();
+        if(!ret) delete ANIMATION_QUEUE[id];
+    }
+    for(let id in data){
         let d = data[id];
         if(id == socketID){
             player.pos = new Vector2(d.pos.x, d.pos.y);

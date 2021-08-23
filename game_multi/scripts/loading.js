@@ -6,7 +6,7 @@ function Loading_Wall(idx){
     else{
         let i = idx;
         let img = new Image();
-        img.src = `./texture/wall_${idx+1}.png`;
+        img.src = `./texture/wall/wall_${idx+1}.png`;
         img.onload = () => {
             img_wall.push(img);
             let temp = document.createElement('canvas');
@@ -21,6 +21,7 @@ function Loading_Wall(idx){
             console.log(imgd);
             console.log(rgbArray);
             data_wall.push(rgbArray);
+            temp.remove();
             Loading_Wall(i+1);
         }
     }
@@ -34,7 +35,7 @@ function Loading_Floor(idx){
     else{
         let i = idx;
         let img = new Image();
-        img.src = `./texture/floor_${idx+1}.png`;
+        img.src = `./texture/floor/floor_${idx+1}.png`;
         img.onload = () => {
             img_floor.push(img);
             let temp = document.createElement('canvas');
@@ -47,6 +48,7 @@ function Loading_Floor(idx){
                 rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
             }
             data_floor.push(rgbArray);
+            temp.remove();
             Loading_Floor(i+1);
         }
     }
@@ -60,7 +62,7 @@ function Loading_Sprite(idx){
     else{
         let i = idx;
         let img = new Image();
-        img.src = `./texture/sprite_${idx+1}.png`;
+        img.src = `./texture/sprite/sprite_${idx+1}.png`;
         img.onload = () => {
             img_sprite.push(img);
             let temp = document.createElement('canvas');
@@ -73,6 +75,7 @@ function Loading_Sprite(idx){
                 rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
             }
             data_sprite.push(rgbArray);
+            temp.remove();
             Loading_Sprite(i+1);
         }
     }
@@ -100,4 +103,9 @@ function Loading_Image(){
 function IsImageFileLoaded(){
     //console.log(wall_loaded, sprite_loaded, gun_loaded);
     return (wall_loaded && sprite_loaded && gun_loaded && floor_loaded && knife_loaded);
+}
+
+
+function Loading_ANIMATION(){
+    ANIMATION_LIST['gun_anim'] = new spriteAnimation('gun_anim', {width: 256, height: 159}, 0.25);
 }
