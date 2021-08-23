@@ -78,6 +78,7 @@ function update(){
         let user = user_list[id];
         let socket = user_list[id].socket;
         user.processInput2();
+        user.processMouse();
         if(user.health < 0){
             let idd = socket.id;
             socket.disconnect();

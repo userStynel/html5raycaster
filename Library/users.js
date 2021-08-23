@@ -1,7 +1,7 @@
 function AddUser(socket, userInfo){
     user_list[socket.id] = userInfo;
     inc = inc+1;
-    console.log(user_list);
+    //console.log(user_list);
 }
 
 function DeleteUser(socket){

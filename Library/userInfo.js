@@ -43,6 +43,7 @@ class userInfo{
         this.socket = socket;
         this.keyBuffer = null;
         this.keyBuffer2 = [];
+        this.mouseBuffer = [];
         this.health = 100;
     }
     processInput(){
@@ -89,6 +90,13 @@ class userInfo{
         let temppos = this.pos.add(deltaPos);
         if(map[(temppos.y|0)][(temppos.x|0)] != 0) return;
         this.pos = temppos
+    }
+    processMouse(){
+        if(this.mouseBuffer.length == 0) return;
+        let start = this.mouseBuffer[0];
+        let end = this.mouseBuffer[this.mouseBuffer.length-1];
+        let delta = end-start;
+        this.angle = fixAngular(this.angle + 0.75*delta*this.angular_velocity);
     }
     packing(){
         let ret = {

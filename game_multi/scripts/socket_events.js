@@ -9,7 +9,10 @@ socket.on('welcome', (data)=>{
 socket.on('pre_update', ()=>{
     if(keyBuffer2.length != 0)
         socket.emit('keyBuffer', keyBuffer2);
+    if(mouseBuffer.length != 0)
+        socket.emit('mouseBuffer', mouseBuffer);
     keyBuffer2 = [];
+    mouseBuffer = [];
 })
 
 socket.on('update', (data)=>{

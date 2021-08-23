@@ -31,5 +31,8 @@ function SOCKET_EVENTS(socket){
     socket.on('keyBuffer', (kb)=>{
         user_list[socket.id].keyBuffer2= kb;
     })
+    socket.on('mouseBuffer', (mb)=>{
+        user_list[socket.id].mouseBuffer = mb;
+    });
 }
 exports.SOCKET_EVENTS = SOCKET_EVENTS;
