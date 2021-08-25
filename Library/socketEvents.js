@@ -29,7 +29,7 @@ function SOCKET_EVENTS(socket){
         }
     })
     socket.on('keyBuffer', (kb)=>{
-        user_list[socket.id].keyBuffer2= kb;
+        user_list[socket.id].keyBuffer= kb;
     })
     socket.on('mouseBuffer', (mb)=>{
         user_list[socket.id].mouseBuffer = mb;

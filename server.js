@@ -51,14 +51,7 @@ function sendingUserData(){
     let ret = {};
     for(let id in user_list){
         let user = user_list[id];
-        let data = {
-            health: user.health,
-            angle: user.angle,
-            pos: {x: user.pos.x, y: user.pos.y},
-            fov: user.fov,
-            velocity: user.velocity,
-            angular_velocity: user.angular_velocity
-        };
+        data = user.packing(); 
         ret[id] = data;
     }
     return ret;
@@ -77,7 +70,7 @@ function update(){
     for(let id in user_list){
         let user = user_list[id];
         let socket = user_list[id].socket;
-        user.processInput2();
+        user.processInput();
         user.processMouse();
         if(user.health < 0){
             let idd = socket.id;

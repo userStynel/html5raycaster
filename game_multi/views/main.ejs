@@ -33,19 +33,6 @@
             document.getElementById('msg').value = '';
             socket.emit('sendMSG', text);
         }
-        window.addEventListener("keydown", (e)=>{
-            if(document.getElementById('msg') === document.activeElement) return;
-            if(e.key == 'f' || e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
-                keyBuffer2.push(e.key);
-                //socket.emit('input', e.key);
-            }
-        });
-        window.addEventListener('keyup', (e)=>{
-            if(e.key == ' '){
-                if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
-                socket.emit('shoot', checkShot());
-            }
-        });
         console.log(name);
     </script>
     <body style = "background: #101010; color:white;">
@@ -58,6 +45,7 @@
                     </div>
                 </div>
                 <div id = "sincegoup"></div>
+                <!-- <div id = "debugger"></div> -->
             </div>
             <div style = "display:flex">
                 <canvas id = "game"></canvas>
@@ -81,6 +69,7 @@
         var hpbar = document.getElementById('hpbar');
         socket.emit('join_lobby', name);
     </script>
+    <script src = "/scripts/common.js"></script>
     <script src = "/scripts/config.js"></script>
     <script src = "/scripts/animation.js"></script>
     <script src = "/scripts/loading.js"></script>
@@ -88,5 +77,6 @@
     <script src = "/scripts/sprite.js"></script>
     <script src = "/scripts/renderer.js"></script>
     <script src = "/scripts/socket_events.js"></script>
+    <script src = "/scripts/event.js"></script>
     <script src = "/scripts/main.js"></script>
 </html>

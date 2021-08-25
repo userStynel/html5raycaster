@@ -7,10 +7,11 @@ socket.on('welcome', (data)=>{
 });
 
 socket.on('pre_update', ()=>{
-    if(keyBuffer2.length != 0)
-        socket.emit('keyBuffer', keyBuffer2);
-    if(mouseBuffer.length != 0)
-        socket.emit('mouseBuffer', mouseBuffer);
+    if(keyBuffer != 0)
+        socket.emit('keyBuffer', keyBuffer);
+    // if(mouseBuffer.length != 0)
+    //     socket.emit('mouseBuffer', mouseBuffer);
+    keyBuffer = 0;
     keyBuffer2 = [];
     mouseBuffer = [];
 })
@@ -25,12 +26,7 @@ socket.on('update', (data)=>{
     for(let id in data){
         let d = data[id];
         if(id == socketID){
-            player.pos = new Vector2(d.pos.x, d.pos.y);
-            player.angle = d.angle;
-            player.fov = d.fov;
-            player.velocity = d.velocity;
-            player.angular_velocity = d.angular_velocity;
-            player.health = d.health;
+            player.unpack(d);
         }
         else{
             others_id.push(id);

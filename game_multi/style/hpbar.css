@@ -23,3 +23,12 @@
 .noCursor{
     cursor:none;
 }
+
+#debugger{
+    width:30px; height:30px;
+    background: crimson;
+}
+
+.gamemode{
+    background: green;
+}

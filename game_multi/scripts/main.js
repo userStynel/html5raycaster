@@ -8,20 +8,6 @@ function Init(){
     game_canvas.width = 15 * 40;
     game_canvas.height = 600;
     
-    game_canvas.addEventListener('mouseover', (e) => {
-        game_canvas.setAttribute('class', 'noCursor');
-    });
-    game_canvas.addEventListener('mouseout', (e) => {
-        game_canvas.removeAttribute('class');
-    });
-
-    game_canvas.addEventListener('mousemove', (e) => {
-        mouseBuffer.push(e.offsetX);
-    });
-    game_canvas.addEventListener('click', (e) => {
-        if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
-        socket.emit('shoot', checkShot());
-    });
     g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
     buffer = g.data;
 }

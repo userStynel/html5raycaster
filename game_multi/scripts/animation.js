@@ -49,7 +49,6 @@ class AnimationFactory{
         this.oneCutlength = (this.anim.endFrame/this.anim.count)|0;
     }
     update(){
-        console.log(this.flowFrame, this.oneCutlength);
         this.flowFrame += 1;
         this.flowFrame %= this.anim.endFrame;
         if(this.target == 0)

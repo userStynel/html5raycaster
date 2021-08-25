@@ -169,6 +169,14 @@ class Player{
         this.pos = this.pos.add(deltaPos);
         // console.log(this.angle * 180 / Math.PI);
     }
+    unpack(d){
+        this.pos = new Vector2(d.pos.x, d.pos.y);
+        this.angle = d.angle;
+        this.fov = d.fov;
+        this.velocity = d.velocity;
+        this.angular_velocity = d.angular_velocity;
+        this.health = d.health;
+    }
     update(){
         this.processInput();
         this.cast();

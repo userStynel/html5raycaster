@@ -1,3 +1,4 @@
+const KEY = require('../game_multi/scripts/common').key;
 function fixAngular(rad){ // 각도를 0 ~ 360도 (0 ~ Pi/2 라디안)로 고정시킴
     if(0 <= rad && rad < Math.PI * 2)
         return rad;
@@ -39,33 +40,36 @@ class userInfo{
         this.name = name;
         this.fov = Math.PI/180 * 75;
         this.velocity = 0.15;
-        this.angular_velocity = (Math.PI/180) * 1;
+        this.angular_velocity = (Math.PI/180) * 2.5;
         this.socket = socket;
-        this.keyBuffer = null;
+        this.keyBuffer = 0;
         this.keyBuffer2 = [];
         this.mouseBuffer = [];
         this.health = 100;
     }
     processInput(){
-        if(this.keyBuffer === null) return;
+        if(this.keyBuffer == 0 || this.keyBuffer == null) return;
         let key = this.keyBuffer;
         let deltaPos = new Vector2(0, 0);
-        if(key == 'w')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(this.velocity);
-        else if(key == 's')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(-this.velocity);
-        else if(key == 'a')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.velocity);
-        else if(key == 'd')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.velocity);
-        else if(key == 'q')
+        // console.log(key);
+        if(key & KEY.UP)
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(this.velocity));
+        if(key & KEY.DOWN)
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(-this.velocity));
+        if(key & KEY.LEFT)
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.velocity));
+        if(key & KEY.RIGHT)
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.velocity));
+        if(key & KEY.TURN_LEFT)
             this.angle = fixAngular(this.angle - this.angular_velocity);
-        else if(key == 'e')
+        if(key & KEY.TURN_RIGHT)
             this.angle = fixAngular(this.angle + this.angular_velocity);
-        else if(key == 'f')
+        if(key & KEY.TURN_BACK)
             this.angle = fixAngular(this.angle + Math.PI);
-        this.keyBuffer = null;
-        this.pos = this.pos.add(deltaPos);
+        this.keyBuffer = 0;
+        let temppos = this.pos.add(deltaPos);
+        if(map[(temppos.y|0)][(temppos.x|0)] != 0) return;
+        this.pos = temppos
     }
     processInput2(){
         if(this.keyBuffer2.length == 0) return;
@@ -101,7 +105,7 @@ class userInfo{
     packing(){
         let ret = {
             pos: {x: this.pos.x, y: this.pos.y},
-            name: this.name,
+            angle: this.angle,
             velocity: this.velocity,
             angular_velocity: this.angular_velocity,
             health: this.health,

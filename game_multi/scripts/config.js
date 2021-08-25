@@ -26,7 +26,7 @@ var map = []
 var sprite_map = [];
 
 var sprites = [];
-var keyBuffer = null;
+var keyBuffer = 0;
 var zBuffer = [];
 
 var gun_loaded = false;
@@ -59,3 +59,4 @@ var mouseBuffer = [];
 
 
 var gun_animated = false;
+var game_mode = true;
