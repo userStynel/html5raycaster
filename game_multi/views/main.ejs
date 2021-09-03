@@ -7,8 +7,11 @@
     </head>
     <script>
         var name = "<%= name %>";
+        var hash = "<%= hash %>";
         var socket = io();
         var socketID;
+        var playMode = false;
+        var isWaitMode = true;
 
         function checkShot(){
             let my_pos = player.pos
@@ -33,11 +36,23 @@
             document.getElementById('msg').value = '';
             socket.emit('sendMSG', text);
         }
-        console.log(name);
+        function moveTeam(team){
+            if(!playMode)
+                socket.emit('move-team', team);
+        }
+        function clickBtn(){
+            if(!playMode){
+                socket.emit('click_game_start', '');
+            }
+            else{
+                socket.emit('click_game_broken','');
+            }
+        }
+        socket.emit('firstJoin', {type:'game', hash: hash, name:name});
     </script>
     <body style = "background: #101010; color:white;">
         <div style = "display: flex;">
-            <div style = "margin-right: 0.5rem;"> 
+            <div style = "margin-right: 0.5rem;" id = "situation_panel"> 
                 <h5 style="text-align:center;"> ONLINE </h5>
                 <canvas id = "map"></canvas>
                 <div id = "hpbar" style = "--width: 50;" >
@@ -45,9 +60,43 @@
                     </div>
                 </div>
                 <div id = "sincegoup"></div>
-                <!-- <div id = "debugger"></div> -->
             </div>
             <div style = "display:flex">
+                <div id = "wait_mode" style = "margin-right: 1rem">
+                    <h5 style = "text-align: center;">USER_LIST</h5>
+                    <table>
+                        <thead>
+                            <td style = "color:crimson;">
+                                <label for = "btn_move_left">LEFT</label>
+                                <button id = "btn_move_left" style = "display: none;" onclick="moveTeam(1);"></button>
+                            </td>
+                            <td>
+                                <label for = "btn_move_spec">SPEC</label>
+                                <button id = "btn_move_spec" style = "display: none;" onclick="moveTeam(0);"></button>
+                            </td>
+                            <td style = "color:skyblue;">
+                                <label for = "btn_move_right">RIGHT</label>
+                                <button id = "btn_move_right" style = "display: none;" onclick="moveTeam(2);"></button>
+                            </td>
+                        </thead>
+                        <tr>
+                            <td>
+                                <ul id = "wait_mode_ul-left"></ul>
+                            </td>
+                            <td>
+                                <ul id = "wait_mode_ul-spec"></ul>
+                            </td>
+                            <td>
+                                <ul id = "wait_mode_ul-right"></ul>
+                            </td>
+                        </tr>
+                        <% if(admin) { %> 
+                        <tr>
+                            <td colspan="3" style = "text-align: center;"><button id = "start-pause" class = "btn-start" onclick = "clickBtn();">START!</button></td>
+                        </tr>
+                        <% } %>
+                    </table>
+                </div>
                 <canvas id = "game"></canvas>
                 <div>
                     <h5 style = "text-align:center;" draggable = "false">CHATTING</h5>
@@ -57,7 +106,7 @@
                         <input type = "text" id = 'msg' style = "background: none; border: none; border-bottom: 1px white solid;
                         color: white; text-align: center; margin-right:0.5rem" autocomplete="off"><label for = "abc"> 
                         <div style = "border: 0.5px white solid; color: white;
-                        padding-left:0.5rem; padding-right:0.5rem; width: fit-content;"> OK </div> </label>
+                        padding-left:0.5rem; padding-right:0.5rem; width: fit-content;"> SEND </div> </label>
                         <input id = "abc" type="submit" value="ok" style = "display:none;">
                         </div>
                     </form>
@@ -67,7 +116,43 @@
     </body>
     <script>
         var hpbar = document.getElementById('hpbar');
-        socket.emit('join_lobby', name);
+        function checkMode(){
+            let situation_panel = document.getElementById('situation_panel');
+            let game = document.getElementById('game');
+            let wait_mode = document.getElementById('wait_mode');
+            if(isWaitMode){
+                situation_panel.setAttribute('class', 'invisible');
+                game.setAttribute('class', 'invisible');
+                wait_mode.removeAttribute('class');
+            }
+            else{
+                situation_panel.removeAttribute('class');
+                game.removeAttribute('class');
+                wait_mode.setAttribute('class', 'invisible');
+            }
+        }
+        function updateUserList(user_list){
+            let wait_mode_ul_left = document.getElementById('wait_mode_ul-left');
+            while(wait_mode_ul_left.hasChildNodes()){wait_mode_ul_left.removeChild(wait_mode_ul_left.firstChild);};
+
+            let wait_mode_ul_right = document.getElementById('wait_mode_ul-right');
+            while(wait_mode_ul_right.hasChildNodes()){wait_mode_ul_right.removeChild(wait_mode_ul_right.firstChild);};
+            
+            let wait_mode_ul_spec = document.getElementById('wait_mode_ul-spec');
+            while(wait_mode_ul_spec.hasChildNodes()){wait_mode_ul_spec.removeChild(wait_mode_ul_spec.firstChild);};
+            
+            for(let user of user_list){
+                let li = document.createElement('li');
+                li.textContent = user.name;
+                if(user.team == 0)
+                    wait_mode_ul_spec.appendChild(li);
+                else if(user.team == 1)
+                    wait_mode_ul_left.appendChild(li);
+                else if(user.team == 2)
+                    wait_mode_ul_right.appendChild(li);
+            }
+        }
+
     </script>
     <script src = "/scripts/common.js"></script>
     <script src = "/scripts/config.js"></script>

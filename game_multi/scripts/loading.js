@@ -102,6 +102,9 @@ function Loading_Image(){
 
 function IsImageFileLoaded(){
     //console.log(wall_loaded, sprite_loaded, gun_loaded);
+    for(let id in ANIMATION_LIST){
+        if(!ANIMATION_LIST[id].loaded) return false;
+    }
     return (wall_loaded && sprite_loaded && gun_loaded && floor_loaded && knife_loaded);
 }
 

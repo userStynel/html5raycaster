@@ -138,8 +138,13 @@ function Render_Sprite(me){
 }
 
 function Render_Game(me){
+    game_ctx.fillStyle = "pink";
+    game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
+    g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
+    buffer = g.data;
     Render_FloorAndCeil(player);
     Render_Wall(player);
     Render_Sprite(player);
     game_ctx.putImageData(g, 0, 0);
+    Render_Weapon();
 }

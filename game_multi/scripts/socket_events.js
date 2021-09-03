@@ -1,9 +1,6 @@
 socket.on('welcome', (data)=>{
-    map = data.map;
     socketID = data.id;
-    sprite_map = data.sprite_map;
-    sprites.push(new Sprite(data.sprites.type, new Vector2(data.sprites.pos.x, data.sprites.pos.y)));
-    Init();
+    playMode = data.playmode;
 });
 
 socket.on('pre_update', ()=>{
@@ -59,3 +56,38 @@ socket.on('kill', (data)=>{
 socket.on('disconnect', (data)=>{
     game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
 })
+
+socket.on('room_deleted', ()=>{
+    alert('insommnia');
+});
+
+socket.on('user_coming', (user_list)=>{
+    updateUserList(user_list);
+});
+
+socket.on('user_leaving', (user_list)=>{
+    updateUserList(user_list);
+});
+
+socket.on('game_start', (data)=>{
+    console.log('game is comming...');
+    playMode = true;
+    map = data.map;
+    sprite_map = data.sprite_map;
+    sprites.push(new Sprite(data.sprites.type, new Vector2(data.sprites.pos.x, data.sprites.pos.y)));
+    alert('game start!');
+});
+
+socket.on('game_finish', ()=>{
+    playMode = false;
+    alert('game finished!');
+})
+
+socket.socket('game_result', (isRightWin)=>{
+    if(isRightWin) alert('Right Team Win');
+    else alert('Left Team Win');
+});
+
+socket.on('gameover', (user_list)=>{
+    updateUserList(user_list);})
+

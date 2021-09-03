@@ -32,3 +32,18 @@
 .gamemode{
     background: green;
 }
+
+.invisible{
+    display: none;
+}
+
+thead{
+    text-align: center;
+}
+
+ul{
+    text-align: center;
+    list-style: none;
+    text-decoration: none;
+    padding: 0 5rem 0 5rem;
+}

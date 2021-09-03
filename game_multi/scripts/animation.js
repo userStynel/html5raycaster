@@ -11,6 +11,7 @@ class spriteAnimation{
         this.endFrame = (32 * sec)|0;
         this.count
         this.IMG();
+        this.loaded = false;
     }
     SLICE(idx){
         let i = idx;
@@ -28,6 +29,7 @@ class spriteAnimation{
                 that.SLICE(i+1);
             }
         }
+        else this.loaded = true;
     }
     IMG(){
         let img = new Image();

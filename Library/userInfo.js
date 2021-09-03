@@ -46,6 +46,7 @@ class userInfo{
         this.keyBuffer2 = [];
         this.mouseBuffer = [];
         this.health = 100;
+        this.team = 0;
     }
     processInput(){
         if(this.keyBuffer == 0 || this.keyBuffer == null) return;

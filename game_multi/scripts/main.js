@@ -10,6 +10,8 @@ function Init(){
     
     g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
     buffer = g.data;
+    checkMode();
+    //socket.emit('join_lobby', name);
 }
 
 function DrawMap(){
@@ -33,20 +35,14 @@ function draw(){
 
 function update(){
     if(IsImageFileLoaded()){
-        game_ctx.fillStyle = "pink";
-        game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
-        g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
-        buffer = g.data;
         player.update();
         draw();
         Render_Game(player);
-        Render_Weapon();
         hpbar.setAttribute('style', `--width:${player.health}`);
     }
     else{
         console.log("Loading Images...");
     }
 }
-
-// Init();
+Init();
 // update();

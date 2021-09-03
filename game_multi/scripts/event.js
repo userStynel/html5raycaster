@@ -1,5 +1,6 @@
 window.addEventListener("keydown", (e)=>{
     if(document.getElementById('msg') === document.activeElement) return;
+    if(isWaitMode) return;
     if(e.key == 'f' || e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
         keyBuffer2.push(e.key);
         //socket.emit('input', e.key);
@@ -22,7 +23,7 @@ window.addEventListener("keydown", (e)=>{
 });
 
 window.addEventListener('keyup', (e)=>{
-    if(e.key == ' '){
+    if(e.key == ' ' && !isWaitMode){
         if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
         socket.emit('shoot', checkShot());
         // game_mode = !game_mode;
@@ -31,6 +32,10 @@ window.addEventListener('keyup', (e)=>{
     }
     else if(e.key =='Tab'){
         e.preventDefault();
+    }
+    else if(e.key == 'Escape'){
+        isWaitMode = !isWaitMode;
+        checkMode();
     }
 });
 
@@ -47,6 +52,8 @@ window.addEventListener('keyup', (e)=>{
 // });
 
 game_canvas.addEventListener('click', (e) => {
-    if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
-    socket.emit('shoot', checkShot());
+    if(!isWaitMode){
+        if(ANIMATION_QUEUE[0] === undefined) ANIMATION_QUEUE[0] = new AnimationFactory(0, 'gun_anim');
+        socket.emit('shoot', checkShot());
+    }
 });
