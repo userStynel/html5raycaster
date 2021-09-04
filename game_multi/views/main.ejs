@@ -50,7 +50,7 @@
         }
         socket.emit('firstJoin', {type:'game', hash: hash, name:name});
     </script>
-    <body style = "background: #101010; color:white;">
+    <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;">
         <div style = "display: flex;">
             <div style = "margin-right: 0.5rem;" id = "situation_panel"> 
                 <h5 style="text-align:center;"> ONLINE </h5>
@@ -115,6 +115,9 @@
         </div>
     </body>
     <script>
+         window.addEventListener('contextmenu', (e) => {
+		    e.preventDefault();
+        }); 
         var hpbar = document.getElementById('hpbar');
         function checkMode(){
             let situation_panel = document.getElementById('situation_panel');
@@ -144,6 +147,14 @@
             for(let user of user_list){
                 let li = document.createElement('li');
                 li.textContent = user.name;
+                li.addEventListener('click', (e)=>{
+                    let isRightButton = 0;
+                    if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+                        isRightButton = e.which == 3; 
+                    else if ("button" in e)  // IE, Opera 
+                        isRightButton = e.button == 2; 
+                    if(isRightButton) alert('ban!');
+                })
                 if(user.team == 0)
                     wait_mode_ul_spec.appendChild(li);
                 else if(user.team == 1)

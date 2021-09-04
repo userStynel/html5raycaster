@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>hello <%=name%></title>
+        <script src = "/scripts/socket.io.js"></script>
+    </head>
+    <script>
+        var width = 15;
+        var height = 15;
+        var map;
+        var tiles_src = ['/texture/wall/wall_2.png', '/texture/floor/floor_1.png'];
+        var tiles = [new Image(), new Image()];
+        function INIT_MAP(){
+            for(let y = 0; y<height; y++){
+                map[y] = [];
+                for(let x = 0; x<width; x++){
+                    map[y][x] = 0;
+                }
+            }
+        }
+
+    </script>
+    <body style = "background: #101010; color:white;">
+        <h5> MAP EDITOR </h5>
+        <div style = "display:flex">
+            <div id = "map_editor"></div>
+            <div id = "tile_editor">
+                <div id = "tile_set"></div>
+                <button id = "btn_add_tile">ADD TILE</button>
+            </div>
+        </div>
+    </body>
+</html>

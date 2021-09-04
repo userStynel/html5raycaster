@@ -59,6 +59,7 @@ socket.on('disconnect', (data)=>{
 
 socket.on('room_deleted', ()=>{
     alert('insommnia');
+    window.location.href = '/lobby';
 });
 
 socket.on('user_coming', (user_list)=>{
@@ -83,7 +84,7 @@ socket.on('game_finish', ()=>{
     alert('game finished!');
 })
 
-socket.socket('game_result', (isRightWin)=>{
+socket.on('game_result', (isRightWin)=>{
     if(isRightWin) alert('Right Team Win');
     else alert('Left Team Win');
 });
