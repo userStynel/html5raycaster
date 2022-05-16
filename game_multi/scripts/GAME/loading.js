@@ -13,13 +13,11 @@ function Loading_Wall(idx){
             let tempctx = temp.getContext('2d');
             temp.width = img.width; temp.height = img.height;
             tempctx.drawImage(img, 0, 0);
-            let imgd = tempctx.getImageData(0, 0, img.width, img.height).data;
+            let imgdata = tempctx.getImageData(0, 0, img.width, img.height).data;
             var rgbArray = new Array(img.width * img.height);
             for(let p = 0; p<img.width*img.height; p++){
-                rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
+                rgbArray[p] = [imgdata[4*p], imgdata[4*p+1], imgdata[4*p+2], imgdata[4*p+3]];
             }
-            console.log(imgd);
-            console.log(rgbArray);
             data_wall.push(rgbArray);
             temp.remove();
             Loading_Wall(i+1);
@@ -82,18 +80,18 @@ function Loading_Sprite(idx){
 }
 
 function Loading_Image(){
-    let img = new Image();
-    let img2 = new Image();
-    img.src = './texture/gun.png';
-    img.onload = () => {
+    let gun = new Image();
+    let knife = new Image();
+    gun.src = './texture/gun.png';
+    gun.onload = () => {
         gun_loaded = true;
-        wp_img = img;
-        img_gun = img;
+        wp_img = gun;
+        img_gun = gun;
     }
-    img2.src = './texture/knife.png';
-    img2.onload = () => {
+    knife.src = './texture/knife.png';
+    knife.onload = () => {
         knife_loaded = true;
-        img_knife = img2;
+        img_knife = knife;
     }
     Loading_Wall(0);
     Loading_Sprite(0);

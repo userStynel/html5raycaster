@@ -5,52 +5,7 @@
         <link rel = "stylesheet" href = "/style/hpbar.css">
         <script src = "/scripts/socket.io.js"></script>
     </head>
-    <script>
-        var name = "<%= name %>";
-        var hash = "<%= hash %>";
-        var socket = io();
-        var socketID;
-        var playMode = false;
-        var isWaitMode = true;
-
-        function checkShot(){
-            let my_pos = player.pos
-            let dir = new Vector2(1, 0).rotate(player.angle);
-
-            let x1 = my_pos.x, x2 = my_pos.add(dir).x;
-            let y1 = my_pos.y, y2 = my_pos.add(dir).y;
-
-            for(let i = 0; i<others.length; i++){
-                let other = others[i];
-                let other_pos = other.pos;
-                let x0 = other_pos.x, y0 = other_pos.y;
-                let det = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-                let d = Math.abs((x2 - x1)*(y1 - y0) - (x1 - x0) * (y2 - y1)) / det;
-                if(zBuffer[h/2] > my_pos.sub(other_pos).mag() && d <= 0.5)
-                    return others_id[i];
-            }
-            return 0;
-        }
-        function sendMSG(){
-            let text = document.getElementById('msg').value;
-            document.getElementById('msg').value = '';
-            socket.emit('sendMSG', text);
-        }
-        function moveTeam(team){
-            if(!playMode)
-                socket.emit('move-team', team);
-        }
-        function clickBtn(){
-            if(!playMode){
-                socket.emit('click_game_start', '');
-            }
-            else{
-                socket.emit('click_game_broken','');
-            }
-        }
-        socket.emit('firstJoin', {type:'game', hash: hash, name:name});
-    </script>
-    <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;">
+    <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;" onload = "Init()">
         <div style = "display: flex;">
             <div style = "margin-right: 0.5rem;" id = "situation_panel"> 
                 <h5 style="text-align:center;"> ONLINE </h5>
@@ -59,7 +14,7 @@
                     <div>    
                     </div>
                 </div>
-                <div id = "sincegoup"></div>
+                <div id = "status"></div>
             </div>
             <div style = "display:flex">
                 <div id = "wait_mode" style = "margin-right: 1rem">
@@ -92,7 +47,15 @@
                         </tr>
                         <% if(admin) { %> 
                         <tr>
-                            <td colspan="3" style = "text-align: center;"><button id = "start-pause" class = "btn-start" onclick = "clickBtn();">START!</button></td>
+                            <td colspan="3" style = "text-align: center;">
+                                <p>map selector
+                                    <select id = "mapselector">
+                                        <option value = "1">1</option>
+                                        <option value = "2">2</option>
+                                    </select>
+                                </p>
+                                <button id = "start-pause" class = "btn-start" onclick = "click_Game_Btn();">START!</button>
+                            </td>
                         </tr>
                         <% } %>
                     </table>
@@ -103,11 +66,14 @@
                     <div id = "chatbox" style = "height:200px; overflow:hidden;"></div>
                     <form action = "javascript:sendMSG()">
                         <div style = "display: flex;">
-                        <input type = "text" id = 'msg' style = "background: none; border: none; border-bottom: 1px white solid;
-                        color: white; text-align: center; margin-right:0.5rem" autocomplete="off"><label for = "abc"> 
-                        <div style = "border: 0.5px white solid; color: white;
-                        padding-left:0.5rem; padding-right:0.5rem; width: fit-content;"> SEND </div> </label>
-                        <input id = "abc" type="submit" value="ok" style = "display:none;">
+                            <input type = "text" id = 'msg' style = "background: none; border: none; border-bottom: 1px white solid;
+                            color: white; text-align: center; margin-right:0.5rem" autocomplete="off">
+                            <label for = "abc"> 
+                                <div style = "border: 0.5px white solid; color: white; padding-left:0.5rem; padding-right:0.5rem; width: fit-content;"> 
+                                    SEND 
+                                </div> 
+                            </label>
+                            <input id = "abc" type="submit" value="ok" style = "display:none;">
                         </div>
                     </form>
                 </div>
@@ -115,10 +81,52 @@
         </div>
     </body>
     <script>
-         window.addEventListener('contextmenu', (e) => {
-		    e.preventDefault();
-        }); 
-        var hpbar = document.getElementById('hpbar');
+        var name = "<%= name %>";
+        var hash = "<%= hash %>";
+        var playMode = false;
+        var isWaitMode = true;
+
+        function checkShot(){
+            const bias = 0.5
+            let my_pos = player.pos
+            let dir = new Vector2(1, 0).rotate(player.angle);
+
+            let x1 = my_pos.x, x2 = my_pos.add(dir).x;
+            let y1 = my_pos.y, y2 = my_pos.add(dir).y;
+
+            for(let i = 0; i<others.length; i++){
+                let other = others[i];
+                let other_pos = other.pos;
+                let x0 = other_pos.x, y0 = other_pos.y;
+                let det = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+                let d = Math.abs((x2 - x1)*(y1 - y0) - (x1 - x0) * (y2 - y1)) / det;
+                if(zBuffer[h/2] > my_pos.sub(other_pos).mag() && d <= bias)
+                    return others_id[i];
+            }
+            return 0;
+        }
+        
+        function sendMSG(){
+            let text = document.getElementById('msg').value;
+            document.getElementById('msg').value = '';
+            socket.emit('sendMSG', text);
+        }
+
+        function moveTeam(team){
+            if(!playMode)
+                socket.emit('move-team', team);
+        }
+
+        function click_Game_Btn(){
+            if(!playMode){
+                let map = parseInt(document.getElementById('mapselector').value);
+                socket.emit('click_game_start', map);
+            }
+            else{
+                socket.emit('click_game_broken','');
+            }
+        }
+
         function checkMode(){
             let situation_panel = document.getElementById('situation_panel');
             let game = document.getElementById('game');
@@ -128,12 +136,13 @@
                 game.setAttribute('class', 'invisible');
                 wait_mode.removeAttribute('class');
             }
-            else{
+            else if(playMode){
                 situation_panel.removeAttribute('class');
                 game.removeAttribute('class');
                 wait_mode.setAttribute('class', 'invisible');
             }
         }
+
         function updateUserList(user_list){
             let wait_mode_ul_left = document.getElementById('wait_mode_ul-left');
             while(wait_mode_ul_left.hasChildNodes()){wait_mode_ul_left.removeChild(wait_mode_ul_left.firstChild);};
@@ -163,16 +172,15 @@
                     wait_mode_ul_right.appendChild(li);
             }
         }
-
     </script>
     <script src = "/scripts/common.js"></script>
-    <script src = "/scripts/config.js"></script>
-    <script src = "/scripts/animation.js"></script>
-    <script src = "/scripts/loading.js"></script>
-    <script src = "/scripts/player.js"></script>
-    <script src = "/scripts/sprite.js"></script>
-    <script src = "/scripts/renderer.js"></script>
-    <script src = "/scripts/socket_events.js"></script>
-    <script src = "/scripts/event.js"></script>
-    <script src = "/scripts/main.js"></script>
+    <script src = "/scripts/GAME/config.js"></script>
+    <script src = "/scripts/GAME/animation.js"></script>
+    <script src = "/scripts/GAME/loading.js"></script>
+    <script src = "/scripts/GAME/player.js"></script>
+    <script src = "/scripts/GAME/sprite.js"></script>
+    <script src = "/scripts/GAME/renderer.js"></script>
+    <script src = "/scripts/GAME/socket_events_client.js"></script>
+    <script src = "/scripts/GAME/event.js"></script>
+    <script src = "/scripts/GAME/main.js"></script>
 </html>

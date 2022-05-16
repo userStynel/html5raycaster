@@ -1,7 +1,9 @@
 var anim;
+
 function Init(){
     Loading_Image(0);
     Loading_ANIMATION();
+    
     map_canvas.width = WIDTH * SIZE;
     map_canvas.height = HEIGHT * SIZE;
 
@@ -10,8 +12,12 @@ function Init(){
     
     g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
     buffer = g.data;
+
+    ADD_CLIENT_WINDOW_EVENT();
+    ADD_CLIENT_SOCKET_EVENT();
+
     checkMode();
-    //socket.emit('join_lobby', name);
+    socket.emit('firstJoin', {type:'game', hash: hash, name:name});
 }
 
 function DrawMap(){
@@ -44,5 +50,4 @@ function update(){
         console.log("Loading Images...");
     }
 }
-Init();
-// update();
+

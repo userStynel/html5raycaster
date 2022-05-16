@@ -5,15 +5,21 @@ class Room{
     constructor(hash, title, password, maxPlayer){
         this.hash = hash;
         this.users = {};
-        this.map = map;
-        this.title = title;
+        this.map;
+        this.title = title; // 방제
         this.userCount = 0;
         this.maxPlayer = maxPlayer;
         this.password = password;
-        this.captain;
+        this.captain; // 방장
         this.clearflag = false;
         this.playMode = false;
-        this.queue = {}
+        this.queue = {} // 대기 큐
+    }
+    makingHash(){
+        let ret = new String();
+        for(let i = 0; i<5; i++)
+            ret = ret.concat(String.fromCharCode(Math.floor(Math.random()*26)+97));
+        return ret;
     }
     tryingJoin(id, password){
         if(password === null || password == this.password){
@@ -29,11 +35,10 @@ class Room{
     }
     Join(id){
         let name = mappingSocketToName[id];
-        let socket = mappingNameToSocket[name];
         this.userCount += 1;
         if(this.userCount == 1)
             this.captain = id;
-        this.users[id] = new userInfo(name, null, socket);
+        this.users[id] = new userInfo(name, null);
     }
     Leave(id){
         this.userCount -= 1;
@@ -41,7 +46,6 @@ class Room{
         if(id == this.captain)
             this.clearflag = true;
     }
-
     sendingUserData(){
         let ret = {};
         for(let id in this.users){
@@ -52,40 +56,29 @@ class Room{
         }
         return ret;
     }
-    
     preupdate(){
-        for(let id in this.users){
-            let user = this.users[id];
-            let socket = user.socket;
-            socket.emit('pre_update');
-        }
+        io.to(this.hash).emit('pre_update');
         this.update();
     }
-
     update(){
         let cntLeft = 0; let cntRight = 0;
         for(let id in this.users){
-            let socket = this.users[id].socket;
             let goflag = false;
             let user = this.users[id];
             if(user.pos == null) continue;
-            user.processInput();
+            user.processInput(this.map);
             user.processMouse();
             if(user.health < 0){
                 goflag = true;
                 user.team = 0;
                 user.pos = null;
-                //socket.disconnect();
-                //DeleteUser(idd);
             }
         }
         if(this.goflag) io.to(this.hash).emit('gameover', this.serializeUL());
         let ret = this.sendingUserData();
         for(let id in this.users){
-            let socket = this.users[id].socket;
             if(this.users[id].team == 1) cntLeft += 1;
             else if(this.users[id].team == 2) cntRight += 1;
-            socket.emit('update', ret);
         }
         if(cntLeft == 0 || cntRight == 0){
             let isRightWin = (cntRight != 0) ? true : false;
@@ -93,8 +86,8 @@ class Room{
              io.to(this.hash).emit('game_result', isRightWin);
              io.to(this.hash).emit('game_finish', '');
         }
+        else io.to(this.hash).emit('update', ret);
     }
-
     serializeUL(){
         let ret = [];
         for(let id in this.users){
@@ -103,29 +96,30 @@ class Room{
         }
         return ret;
     }
-    checkConnection(name, password){
+    checkConnection(password){
         let ret = {};
         if(this.userCount >= this.maxPlayer){
             ret['result'] = false; ret['errcode'] = 1;
         }
         else if(password == this.password){
-            this.queue[name] = true;
-            ret['result'] = true; ret['errcode'] = 0;
+            let key = this.makingHash();
+            this.queue[key] = true;
+            ret['result'] = true;
+            ret['key'] = key
         }
         else{
             ret['result'] = false; ret['errcode'] = 2;
         }
-        console.log(ret);
         return ret;
     }
-    avoid(param){
+    auth(param){
         for(let id in this.queue){
             if(param == id){
                 delete this.queue[id];
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }
 

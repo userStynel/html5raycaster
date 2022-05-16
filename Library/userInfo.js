@@ -1,4 +1,5 @@
 const KEY = require('../game_multi/scripts/common').key;
+
 function fixAngular(rad){ // 각도를 0 ~ 360도 (0 ~ Pi/2 라디안)로 고정시킴
     if(0 <= rad && rad < Math.PI * 2)
         return rad;
@@ -8,6 +9,9 @@ function fixAngular(rad){ // 각도를 0 ~ 360도 (0 ~ Pi/2 라디안)로 고정
         return rad + Math.PI * 2;
 }
 
+function toRadian(deg){
+    return deg * (Math.PI / 180.0);
+}
 class Vector2{
     constructor(x, y){
         this.x = x;
@@ -34,33 +38,31 @@ class Vector2{
 }
 
 class userInfo{
-    constructor(name, pos, socket){
+    constructor(name, pos){
         this.angle = 0;
         this.pos = pos;
         this.name = name;
-        this.fov = Math.PI/180 * 75;
-        this.velocity = 0.15;
-        this.angular_velocity = (Math.PI/180) * 2.5;
-        this.socket = socket;
+        this.fov = toRadian(75);
+        this.movement_velocity = 0.15;
+        this.angular_velocity = toRadian(2.5);
         this.keyBuffer = 0;
         this.keyBuffer2 = [];
         this.mouseBuffer = [];
         this.health = 100;
         this.team = 0;
     }
-    processInput(){
+    processInput(map = null){
         if(this.keyBuffer == 0 || this.keyBuffer == null) return;
         let key = this.keyBuffer;
         let deltaPos = new Vector2(0, 0);
-        // console.log(key);
         if(key & KEY.UP)
-            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(this.velocity));
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(this.movement_velocity));
         if(key & KEY.DOWN)
-            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(-this.velocity));
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle).mul(-this.movement_velocity));
         if(key & KEY.LEFT)
-            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.velocity));
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.movement_velocity));
         if(key & KEY.RIGHT)
-            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.velocity));
+            deltaPos = deltaPos.add(new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.movement_velocity));
         if(key & KEY.TURN_LEFT)
             this.angle = fixAngular(this.angle - this.angular_velocity);
         if(key & KEY.TURN_RIGHT)
@@ -77,13 +79,13 @@ class userInfo{
         let key = this.keyBuffer2[0];
         let deltaPos = new Vector2(0, 0);
         if(key == 'w')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(this.velocity);
+            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(this.movement_velocity);
         else if(key == 's')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(-this.velocity);
+            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(-this.movement_velocity);
         else if(key == 'a')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.velocity);
+            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.movement_velocity);
         else if(key == 'd')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.velocity);
+            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.movement_velocity);
         else if(key == 'q')
             this.angle = fixAngular(this.angle - this.angular_velocity);
         else if(key == 'e')
@@ -107,8 +109,6 @@ class userInfo{
         let ret = {
             pos: {x: this.pos.x, y: this.pos.y},
             angle: this.angle,
-            velocity: this.velocity,
-            angular_velocity: this.angular_velocity,
             health: this.health,
             fov: this.fov
         }

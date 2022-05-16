@@ -6,6 +6,11 @@ function fixAngular(rad){ // 각도를 0 ~ 360도 (0 ~ Pi/2 라디안)로 고정
     if(rad < 0)
         return rad + Math.PI * 2;
 }
+
+function toRadian(deg){
+    return deg * (Math.PI / 180.0);
+}
+
 class Vector2{
     constructor(x, y){
         this.x = x;
@@ -14,7 +19,7 @@ class Vector2{
     add(b){ // 두 벡터를 더한 벡터를 반환합니다
         return new Vector2(this.x + b.x, this.y + b.y);
     }
-    sub(b){ // 두 벡터를 뺀 벡터를 반환합니다
+    sub(b){ // 두 벡터를 뺀 (a-b) 벡터를 반환합니다
         return new Vector2(this.x - b.x, this.y - b.y);
     }
     mul(s){
@@ -35,9 +40,10 @@ class Ray{
     constructor(start, rayDir){
         this.start = start;
         this.rayDir = rayDir;
-        this.perpWallDist, this.wallX;
-        this.sprite = -1;
-        this.type;
+
+        this.perpWallDist;
+        this.hitWallTexcoordX;
+        this.hitWallTextureType;
     }
     cast(){
         let mapX = this.start.x | 0;
@@ -75,7 +81,7 @@ class Ray{
                 mapY += stepY;
             }
             if(map[mapY][mapX] > 0){
-                this.type = map[mapY][mapX];
+                this.hitWallTextureType = map[mapY][mapX];
                 hit = 1;
             }
         }
@@ -86,46 +92,43 @@ class Ray{
         else
             perpWallDist = Math.abs((mapY - this.start.y + (1 - stepY) / 2) / this.rayDir.y);
         
-        let wallX; // the exact value where the wall was hit
+        let wallTexcoordX; // the exact value where the wall was hit
         if (side == 1) 
-            wallX = this.start.x + ((mapY - this.start.y + (1 - stepY) / 2) / this.rayDir.y) * this.rayDir.x;
+            wallTexcoordX = this.start.x + ((mapY - this.start.y + (1 - stepY) / 2) / this.rayDir.y) * this.rayDir.x;
         else
-            wallX = this.start.y + ((mapX - this.start.x + (1 - stepX) / 2) / this.rayDir.x) * this.rayDir.y;
-        wallX -= wallX | 0;
+            wallTexcoordX = this.start.y + ((mapX - this.start.x + (1 - stepX) / 2) / this.rayDir.x) * this.rayDir.y;
+         wallTexcoordX -= wallTexcoordX | 0;
         
-        this.perpWallDist = perpWallDist; this.wallX = wallX;
+        this.perpWallDist = perpWallDist; 
+        this.hitWallTexcoordX = wallTexcoordX;
     }
 }
+
 class Player{
     constructor(pos){
         this.pos = pos;
         this.health = 100;
-        this.angle = Math.PI/180 * 0;
+        this.angle = toRadian(0);
         this.bullet = 25;
-        this.fov = Math.PI/180 * 75;
-        this.velocity = 1;
-        this.angular_velocity = (Math.PI/180) * 1;
-        this.Rays = [];
+        this.fov = toRadian(75);
+        this.rays = [];
     }
     cast(){
-        //console.log("start!!");
         let dir = new Vector2(1, 0).rotate(this.angle);
         let plane = new Vector2(0, Math.tan(this.fov/2)).rotate(this.angle);
         
-        this.Rays = [];
+        this.rays = [];
 
         for(let i = 0; i<game_canvas.width; i++){
             let r = 2 * i / game_canvas.width - 1;
             let rayDir = dir.add(plane.mul(r));
-            this.Rays.push(new Ray(this.pos, rayDir));
+            this.rays.push(new Ray(this.pos, rayDir));
         }
         for(let i = 0; i<game_canvas.width; i++){
-            //console.log(lay);
-            let lay = this.Rays[i];
-            lay.cast();
-            zBuffer[i] = lay.perpWallDist;
+            let ray = this.rays[i];
+            ray.cast();
+            zBuffer[i] = ray.perpWallDist;
         }
-        //console.log("end!!");
     }
     draw(){
         map_ctx.beginPath();
@@ -143,7 +146,7 @@ class Player{
         // map_ctx.stroke();
 
         // for(let lay of this.Rays){
-        //     map_ctx.fillStyle = "crimson";
+            //     map_ctx.fillStyle = "crimson";
         //     map_ctx.beginPath();
         //     map_ctx.arc(lay.intersect.point.x, lay.intersect.point.y, PLAYER_RADIUS, 0, Math.PI * 2);
         //     map_ctx.closePath();
@@ -167,18 +170,15 @@ class Player{
             this.angle = fixAngular(this.angle + this.angular_velocity);
         keyBuffer = null;
         this.pos = this.pos.add(deltaPos);
-        // console.log(this.angle * 180 / Math.PI);
     }
     unpack(d){
         this.pos = new Vector2(d.pos.x, d.pos.y);
         this.angle = d.angle;
         this.fov = d.fov;
-        this.velocity = d.velocity;
-        this.angular_velocity = d.angular_velocity;
         this.health = d.health;
     }
     update(){
-        this.processInput();
+        //this.processInput();
         this.cast();
     }
 }

@@ -1,18 +1,16 @@
 const Init_GameSetting = require('./init').Init_GameSetting;
 const Vector2  = require('./userInfo').Vector2;
 const userInfo  = require('./userInfo').userInfo;
-var AddUser = require('./users').AddUser;
-var DeleteUser = require('./users').DeleteUser;
 var map = require('./init').map;
 var sprite_map = require('./init').sprite_map;
 var sprites = require('./init').sprites;
 
 function SOCKET_EVENTS(socket, hash){
     let room = roomManager.roomlist[hash];
+    
     socket.on('input', (data)=>{
         let hash = data.hash;
         let key = data.key;
-        console.log('inputed', key);
         if(hash == NULL)
             user_list[socket.id].keyBuffer = key;
         else{
@@ -21,7 +19,6 @@ function SOCKET_EVENTS(socket, hash){
     });
 
     socket.on('disconnect', (reason)=>{
-        console.log('disconnected');
         if(roomManager.roomlist[hash]){
             roomManager.roomlist[hash].Leave(socket.id);
             io.to(hash).emit('user_leaving', roomManager.roomlist[hash].serializeUL());
@@ -34,26 +31,29 @@ function SOCKET_EVENTS(socket, hash){
     socket.on('sendMSG', (text)=>{
         io.to(hash).emit('MSG', {sender: room.users[socket.id].name, text: text});
     });
-    socket.on('shoot', (msg)=>{
+
+    socket.on('shoot', (target)=>{
         let user_list = room.users;
-        if(msg != 0 && typeof user_list[msg] != 'undefined' && user_list[msg].health > 0){
-            user_list[msg].health -= Math.ceil(Math.random()*10);
-            if(user_list[msg].health <= 0){
+        if(target != 0 && typeof user_list[target] != 'undefined' && user_list[target].health > 0){
+            user_list[target].health -= Math.ceil(Math.random()*10);
+            if(user_list[target].health <= 0){
                 let murder_name = user_list[socket.id].name;
-                let victim_name = user_list[msg].name;
+                let victim_name = user_list[target].name;
                 io.to(hash).emit('kill', {murder: murder_name, victim: victim_name});
             }
         }
     })
+
     socket.on('keyBuffer', (data)=>{
         //let hash = data.hash;
         let kb = data;
         if(hash == null)
-            room.users[socket.id].keyBuffer= kb;
+            room.users[socket.id].keyBuffer = kb;
         else{
             room.users[socket.id].keyBuffer = kb;
         }
     })
+
     socket.on('mouseBuffer', (data)=>{
         //let hash = data.hash;
         let mb = data;
@@ -86,8 +86,8 @@ function SOCKET_EVENTS(socket, hash){
         io.to(hash).emit('user_coming', roomManager.roomlist[hash].serializeUL());
     });
 
-    socket.on('click_game_start', ()=>{
-       let data = Init_GameSetting(hash);
+    socket.on('click_game_start', (map)=>{
+       let data = Init_GameSetting(hash, map);
        roomManager.roomlist[hash].playMode = true;
        io.to(hash).emit('game_start', data);
     });

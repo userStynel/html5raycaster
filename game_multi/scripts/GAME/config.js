@@ -13,6 +13,7 @@ const GROUND_COLOR = "black"
 
 const h = 600;
 
+var socket = io();
 var map_canvas = document.getElementById('map');
 var map_ctx = map_canvas.getContext('2d');
 

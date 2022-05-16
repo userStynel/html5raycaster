@@ -1,15 +1,148 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>hello <%=name%></title>
-        <script src = "/scripts/socket.io.js"></script>
+        <title>MAP EDITOR</title>
     </head>
     <script>
+        var nowclicked = 0;
         var width = 15;
         var height = 15;
-        var map;
+        var map = [];
         var tiles_src = ['/texture/wall/wall_2.png', '/texture/floor/floor_1.png'];
         var tiles = [new Image(), new Image()];
+
+        function CONVERT_RMP(){
+            let ret = {};
+            let tiles = [];
+            for(let i = 2; i<tiles_src.length; i++) tiles.push(tiles_src[i]);
+            ret['tiles'] = tiles;
+            ret['map'] = map;
+            return console.log(JSON.stringify(ret));
+        }
+
+        function LOADING_RMP(){
+            let modal_bg = document.createElement('div');
+            let modal = document.createElement('div');
+            modal_bg.id = 'modal_bg';
+            modal_bg.style.justifyContent = 'center';
+            modal_bg.style.alignItems = 'center';
+            modal_bg.style.display='flex';
+            modal_bg.style.position='absolute';
+            modal_bg.style.left = '0px';
+            modal_bg.style.top = '0px';
+            modal_bg.style.width = '100%';
+            modal_bg.style.height = '100%';
+            modal_bg.style.background = 'rgba(0, 0, 0, 0.7)';
+
+            modal.id = 'modal';
+            modal.style.background = 'white';
+            modal.style.color = 'black';
+            modal.style.padding = '0rem 2rem 0rem 2rem';
+            modal.style.height = 'fit-content';
+            modal.style.width = 'fit-content';
+            modal.innerHTML = 
+            "<h3 style = 'text-align:center;'>RMP UPLOADER</h3>" +
+            "<input type = 'file' id = 'RMP_uploader' style = 'display:none;'>" +
+            "<label for = 'RMP_uploader'><p style='text-align:center;'>upload</p></label>"+
+            "<p style = 'text-align:center'><button id = 'btn_admit' style = 'margin-right:0.5rem;' disabled>LOAD</button><button onclick = 'CLOSE_ADDFILE_MODAL()'>CLOSE</button></p>";+
+            modal_bg.appendChild(modal); 
+            document.body.appendChild(modal_bg);
+            let file = document.getElementById('RMP_uploader');
+            file.onchange = () => {
+                let fileList = file.files;
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    let text = e.target.result;
+                    document.getElementById('btn_admit').disabled = false;
+                    document.getElementById('btn_admit').addEventListener('click', ()=>{
+                        let ob = JSON.parse(text);
+                        let map = ob.map;
+                        for(let i = 0; i<ob.tiles.length; i++) tiles_src[2+i] = ob.tiles[i];
+                        for(let y = 0; y<3; y++){
+                            for(let x = 0; x<3; x++){
+                                let idx = y*3 + x;
+                                if(idx < 2) continue;
+                                let img_cell = document.getElementById(`tile_${idx}`);
+                                if(idx < tiles_src.length) img_cell.src = tiles_src[idx];
+                            }
+                        }
+                        for(let y = 0; y<height; y++){
+                            for(let x = 0; x<width; x++){
+                                if(map[y][x] != 0)
+                                    document.getElementById(`cell_${y}_${x}`).src = tiles_src[map[y][x]-1];
+                            }
+                        }
+                    });
+                }
+                reader.readAsText(fileList[0]);
+            }
+        }
+
+        function CLOSE_ADDFILE_MODAL(){
+            let modal_bg = document.getElementById('modal_bg');
+            let modal = document.getElementById('modal');
+            while(modal.hasChildNodes()){modal.removeChild(modal.firstChild);};
+            modal_bg.removeChild(modal);
+            document.body.removeChild(modal_bg);
+        }
+
+        function ADMIT_TILE(result){
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            let img = new Image(64, 64);
+            img.src = result;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                let url = canvas.toDataURL();
+                document.getElementById(`tile_${tiles_src.length}`).src = url;
+                tiles_src.push(url);
+            }
+            CLOSE_ADDFILE_MODAL();
+        }
+        function OPEN_ADDFILE_MODAL(){
+            let modal_bg = document.createElement('div');
+            let modal = document.createElement('div');
+            modal_bg.id = 'modal_bg';
+            modal_bg.style.justifyContent = 'center';
+            modal_bg.style.alignItems = 'center';
+            modal_bg.style.display='flex';
+            modal_bg.style.position='absolute';
+            modal_bg.style.left = '0px';
+            modal_bg.style.top = '0px';
+            modal_bg.style.width = '100%';
+            modal_bg.style.height = '100%';
+            modal_bg.style.background = 'rgba(0, 0, 0, 0.7)';
+
+            modal.id = 'modal';
+            modal.style.background = 'white';
+            modal.style.color = 'black';
+            modal.style.padding = '0rem 2rem 0rem 2rem';
+            modal.style.height = 'fit-content';
+            modal.style.width = 'fit-content';
+            modal.innerHTML = 
+            "<h3 style = 'text-align:center;'>TILE UPLOADER</h3>" + 
+            "<p style = 'text-align:center'><img id = 'tile_preview' style='width:128px; height:128px; border: 0.07rem black solid;'></p>"+
+            "<input type = 'file' id = 'tile_uploader' style = 'display:none;'>" +
+            "<label for = 'tile_uploader'><p style='text-align:center;'>upload</p></label>"+
+            "<p style = 'text-align:center'><button id = 'btn_admit' style = 'margin-right:0.5rem;' disabled>ADMIT</button><button onclick = 'CLOSE_ADDFILE_MODAL()'>CLOSE</button></p>";+
+            modal_bg.appendChild(modal); 
+            document.body.appendChild(modal_bg);
+            let file = document.getElementById('tile_uploader');
+            file.onchange = () => {
+                let fileList = file.files;
+                let reader = new FileReader();
+                reader.readAsDataURL(fileList[0]);
+                reader.onload = () => {
+                    document.getElementById('tile_preview').src = reader.result;
+                    document.getElementById('btn_admit').disabled = false;
+                    document.getElementById('btn_admit').addEventListener('click', ()=>{
+                        ADMIT_TILE(reader.result);
+                    });
+                }
+            }
+        }
         function INIT_MAP(){
             for(let y = 0; y<height; y++){
                 map[y] = [];
@@ -19,15 +152,83 @@
             }
         }
 
+        function INIT_IMAGE(idx){
+            if(idx == tiles_src.length){
+                MAKE_GREED(height, width);
+                return;
+            };
+            let img = new Image();
+            img.src = tiles_src[idx];
+            img.onload = INIT_IMAGE(idx+1);
+        }
+
+        function MAKE_GREED(height, width){
+            for(let y = 0; y<height; y++){
+                let row = document.createElement('div');
+                row.style.display = 'flex';
+                for(let x = 0; x<width; x++){
+                    let px = x; let py = y;
+                    let img_cell = document.createElement('img');
+                    img_cell.id = `cell_${y}_${x}`;
+                    img_cell.width = (64*0.5)|0; img_cell.height = (64*0.5)|0;
+                    img_cell.border = "0.7rem white solid;"
+                    img_cell.addEventListener('click', ()=>{
+                        img_cell.src = tiles_src[nowclicked];
+                        map[py][px] = nowclicked + 1;
+                    })
+                    img_cell.addEventListener('dragover', ()=>{
+                        img_cell.src = tiles_src[nowclicked];
+                    })
+                    row.appendChild(img_cell);
+                }
+                document.getElementById('map_editor').appendChild(row);
+            }
+        }
+
+        function INIT_TILESET(){
+            for(let y = 0; y<3; y++){
+                let row = document.createElement('div');
+                row.style.display = 'flex';
+                for(let x = 0; x<3; x++){
+                    let idx = y*3 + x;
+                    let img_cell = document.createElement('img');
+                    img_cell.id = `tile_${idx}`;
+                    img_cell.width = (64*0.7)|0; img_cell.height = (64*0.7)|0;
+                    img_cell.border = "0.7rem white solid;"
+                    img_cell.addEventListener('click', ()=>{
+                        nowclicked = idx;
+                    });
+                    if(idx < tiles_src.length) img_cell.src = tiles_src[idx];
+                    row.appendChild(img_cell);
+                }
+                document.getElementById('tile_set').appendChild(row);
+            }
+        }
+
+        function INIT(){
+            INIT_MAP();
+            INIT_IMAGE(0);
+            INIT_TILESET();
+        }
+
     </script>
-    <body style = "background: #101010; color:white;">
+    <body style = "background: #101010; color:white;" onload="INIT();">
         <h5> MAP EDITOR </h5>
         <div style = "display:flex">
-            <div id = "map_editor"></div>
-            <div id = "tile_editor">
-                <div id = "tile_set"></div>
-                <button id = "btn_add_tile">ADD TILE</button>
+            <div id = "map_editor" style = "margin-right: 0.7rem;">
+                <h5 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">MAP SET</h5>
             </div>
+            <div id = "tile_editor">
+                <h5 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">TILE SET</h5>
+                <div id = "tile_set"></div>
+                <button id = "btn_add_tile" onclick="OPEN_ADDFILE_MODAL();">ADD TILE</button>
+            </div>
+        </div>
+        <div style = "display: flex;">
+            <label for = "btn_convert"><p style = "margin-right:0.5rem;padding:0.2rem; border:0.05rem white solid; width:fit-content;">CONVERT TO .rmp</p></label>
+            <button id = "btn_convert" style = "display: none;" onclick = "CONVERT_RMP();"></button>
+            <label for = "btn_load"><p style = "padding:0.2rem; border:0.05rem white solid; width:fit-content;">LOAD .rmp</p></label>
+            <button id = "btn_load" style = "display: none;" onclick = "LOADING_RMP();"></button>
         </div>
     </body>
 </html>

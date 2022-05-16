@@ -40,62 +40,43 @@
     </body>
     <script>
         var socket = io();
-        var socketID;
         let roomList = "<%= JSON.stringify(roomList)%>";
         var name = '<%=name%>'
         let rl = document.getElementById('roomList');
         roomList = roomList.replaceAll('&#34;', '\"');
         roomList = JSON.parse(roomList);
         function tryingJoin(hash, password){
-            socket.emit('trying_join', {name: name, hash: hash, password: password});
+            socket.emit('trying_connect_room_request', {hash: hash, password: password});
         };
         function updateRoomList(){
-        while(rl.hasChildNodes()){rl.removeChild(rl.firstChild);};
-        for(let room of roomList){
-            let btn = document.createElement('button');
-            btn.id = `join_btn_${room['hash']}`;
-            btn.addEventListener('click', ()=>{
-                let password = '';
-                if(room['isPassword'])
-                    password = prompt('Enter the password');
-                tryingJoin(room['hash'], password);
-            })
-            btn.style.display = 'none';
-            let label = document.createElement('label');
-            label.htmlFor = `join_btn_${room['hash']}`;
-            let p = document.createElement('li');
-            p.textContent = `${room['title']} | ${room['nowPlayer']} / ${room['maxPlayer']} | ` + (room['isPassword'] ?'🔒':'');
-            label.appendChild(p);
-            rl.appendChild(label);
-            rl.appendChild(btn);
-            /*
-            let a = document.createElement('a');
-            a.href = `/game?room=${room['hash']}`;
-           a.appendChild(p);    
-           rl.appendChild(a);
-           console.log(room['isPassword']);*/
-        }
+            while(rl.hasChildNodes()){rl.removeChild(rl.firstChild);};
+            for(let room of roomList){
+                let btn = document.createElement('button');
+                btn.id = `join_btn_${room['hash']}`;
+                btn.addEventListener('click', ()=>{
+                    let password = '';
+                    if(room['isPassword'])
+                        password = prompt('Enter the password');
+                    tryingJoin(room['hash'], password);
+                })
+                btn.style.display = 'none';
+                let label = document.createElement('label');
+                label.htmlFor = `join_btn_${room['hash']}`;
+                let p = document.createElement('li');
+                p.textContent = `${room['title']} | ${room['nowPlayer']} / ${room['maxPlayer']} | ` + (room['isPassword'] ?'🔒':'');
+                label.appendChild(p);
+                rl.appendChild(label);
+                rl.appendChild(btn);
+                /*
+                let a = document.createElement('a');
+                a.href = `/game?room=${room['hash']}`;
+            a.appendChild(p);    
+            rl.appendChild(a);
+            console.log(room['isPassword']);*/
+            }
         };
         updateRoomList();
         socket.emit('firstJoin', {type: 'lobby', name: name});
-        socket.on('welcome-lobby', (data)=>{
-            socketID = data;
-        });
-        function sendMSG(){
-            let text = document.getElementById('msg').value;
-            document.getElementById('msg').value = '';
-            socket.emit('sendMSG', text);
-        }
-
-        function refresh(){
-            socket.emit('refresh', '');
-        }
-
-        socket.on('refresh_complete', (data)=>{
-            roomList = data;
-            updateRoomList();
-        });
-
         socket.on('MSG', (data)=>{
             let chatbox  = document.getElementById('chatbox');
             let p = document.createElement('p');
@@ -107,10 +88,15 @@
             chatbox.scrollTop = chatbox.scrollHeight;
             console.log(chatbox.scrollTop, chatbox.scrollHeight);
         });
-
-        socket.on('trying_join_result', (data)=>{
+        socket.on('refresh_roomlist_response', (data)=>{
+            roomList = data;
+            updateRoomList();
+        });
+        socket.on('trying_connect_room_response', (data)=>{
             if(data.ret.result)
-                window.location.href = `/game?room=${data.hash}`;
+            {
+                window.location.href = `/game?room=${data.hash}&key=${data.ret.key}`;
+            }
             else{
                 if(data.ret.errcode == 1)
                     alert('This room is full');
@@ -118,6 +104,13 @@
                     alert('Wrong password');
             }
         });
-
+        function sendMSG(){
+            let text = document.getElementById('msg').value;
+            document.getElementById('msg').value = '';
+            socket.emit('sendMSG', text);
+        }
+        function refresh(){
+            socket.emit('refresh_roomlist_request', '');
+        }
     </script>
 </html>
