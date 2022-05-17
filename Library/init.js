@@ -49,7 +49,7 @@ function InitMap(mapnumber = 1){
             for(let x = 0; x<WIDTH; x++){
                 if(y == 0 || y == (HEIGHT - 1) || x == 0 || x == (WIDTH - 1)){
                     if(x == WIDTH/2) map[y][x] = 2;
-                    else map[y][x] = 2;
+                    else map[y][x] = 1;
                 }
                 else map[y][x] = 0;
             }

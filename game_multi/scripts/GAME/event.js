@@ -7,8 +7,6 @@ function ADD_CLIENT_WINDOW_EVENT(){
         if(document.getElementById('msg') === document.activeElement) return;
         if(isWaitMode) return;
         if(e.key == 'f' || e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd' || e.key == 'q' || e.key == 'e'){
-            keyBuffer2.push(e.key);
-            //socket.emit('input', e.key);
             if(e.key == 'f')
                 keyBuffer |= KEY.TURN_BACK;
             if(e.key == 'w')
@@ -41,6 +39,20 @@ function ADD_CLIENT_WINDOW_EVENT(){
             isWaitMode = !isWaitMode;
             checkMode();
         }
+        if(e.key == 'f')
+            keyBuffer &= ~KEY.TURN_BACK;
+        if(e.key == 'w')
+            keyBuffer &= ~KEY.UP;
+        if(e.key == 'a')
+            keyBuffer &= ~KEY.LEFT;
+        if(e.key == 's')
+            keyBuffer &= ~KEY.DOWN;
+        if(e.key == 'd')
+            keyBuffer &= ~KEY.RIGHT;
+        if(e.key == 'q')
+            keyBuffer &= ~KEY.TURN_LEFT;
+        if(e.key == 'e')
+            keyBuffer &= ~KEY.TURN_RIGHT;
     });
     
     // game_canvas.addEventListener('mouseover', (e) => {

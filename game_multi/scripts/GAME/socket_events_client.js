@@ -1,16 +1,11 @@
 function ADD_CLIENT_SOCKET_EVENT(){
     socket.on('welcome', (data)=>{
         playMode = data.playmode;
+        map = data.map;
     });
     
     socket.on('pre_update', ()=>{
-        if(keyBuffer != 0)
-            socket.emit('keyBuffer', keyBuffer);
-        // if(mouseBuffer.length != 0)
-        //     socket.emit('mouseBuffer', mouseBuffer);
-        keyBuffer = 0;
-        keyBuffer2 = [];
-        mouseBuffer = [];
+        socket.emit('keyBuffer', keyBuffer);
     })
     
     socket.on('update', (data)=>{

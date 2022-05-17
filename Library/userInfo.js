@@ -43,10 +43,9 @@ class userInfo{
         this.pos = pos;
         this.name = name;
         this.fov = toRadian(75);
-        this.movement_velocity = 0.15;
-        this.angular_velocity = toRadian(2.5);
+        this.movement_velocity = 0.13;
+        this.angular_velocity = toRadian(1.9);
         this.keyBuffer = 0;
-        this.keyBuffer2 = [];
         this.mouseBuffer = [];
         this.health = 100;
         this.team = 0;
@@ -69,31 +68,6 @@ class userInfo{
             this.angle = fixAngular(this.angle + this.angular_velocity);
         if(key & KEY.TURN_BACK)
             this.angle = fixAngular(this.angle + Math.PI);
-        this.keyBuffer = 0;
-        let temppos = this.pos.add(deltaPos);
-        if(map[(temppos.y|0)][(temppos.x|0)] != 0) return;
-        this.pos = temppos
-    }
-    processInput2(){
-        if(this.keyBuffer2.length == 0) return;
-        let key = this.keyBuffer2[0];
-        let deltaPos = new Vector2(0, 0);
-        if(key == 'w')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(this.movement_velocity);
-        else if(key == 's')
-            deltaPos = new Vector2(1, 0).rotate(this.angle).mul(-this.movement_velocity);
-        else if(key == 'a')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(-this.movement_velocity);
-        else if(key == 'd')
-            deltaPos = new Vector2(1, 0).rotate(this.angle + Math.PI/2).mul(+this.movement_velocity);
-        else if(key == 'q')
-            this.angle = fixAngular(this.angle - this.angular_velocity);
-        else if(key == 'e')
-            this.angle = fixAngular(this.angle + this.angular_velocity);
-        else if(key == 'f')
-            this.angle = fixAngular(this.angle + Math.PI);
-        this.keyBuffer2.shift();
-
         let temppos = this.pos.add(deltaPos);
         if(map[(temppos.y|0)][(temppos.x|0)] != 0) return;
         this.pos = temppos

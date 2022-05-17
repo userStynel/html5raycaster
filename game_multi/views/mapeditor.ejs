@@ -41,7 +41,7 @@
             modal.style.height = 'fit-content';
             modal.style.width = 'fit-content';
             modal.innerHTML = 
-            "<h3 style = 'text-align:center;'>RMP UPLOADER</h3>" +
+            "<h3 style = 'text-align:center;'>JSON UPLOADER</h3>" +
             "<input type = 'file' id = 'RMP_uploader' style = 'display:none;'>" +
             "<label for = 'RMP_uploader'><p style='text-align:center;'>upload</p></label>"+
             "<p style = 'text-align:center'><button id = 'btn_admit' style = 'margin-right:0.5rem;' disabled>LOAD</button><button onclick = 'CLOSE_ADDFILE_MODAL()'>CLOSE</button></p>";+
@@ -225,9 +225,9 @@
             </div>
         </div>
         <div style = "display: flex;">
-            <label for = "btn_convert"><p style = "margin-right:0.5rem;padding:0.2rem; border:0.05rem white solid; width:fit-content;">CONVERT TO .rmp</p></label>
+            <label for = "btn_convert"><p style = "margin-right:0.5rem;padding:0.2rem; border:0.05rem white solid; width:fit-content;">CONVERT TO .json</p></label>
             <button id = "btn_convert" style = "display: none;" onclick = "CONVERT_RMP();"></button>
-            <label for = "btn_load"><p style = "padding:0.2rem; border:0.05rem white solid; width:fit-content;">LOAD .rmp</p></label>
+            <label for = "btn_load"><p style = "padding:0.2rem; border:0.05rem white solid; width:fit-content;">LOAD .json</p></label>
             <button id = "btn_load" style = "display: none;" onclick = "LOADING_RMP();"></button>
         </div>
     </body>

@@ -68,7 +68,7 @@ io.on('connection', (socket)=>{
             roomManager.roomlist[data.hash].Join(socket.id);
             socket.join(data.hash);
             io.to(data.hash).emit('user_coming', roomManager.roomlist[data.hash].serializeUL());
-            socket.emit('welcome', {id:socket.id, playmode: roomManager.roomlist[data.hash].playMode});
+            socket.emit('welcome', {id:socket.id, playmode: roomManager.roomlist[data.hash].playMode, map:roomManager.roomlist[data.hash].map});
             SOCKET_EVENTS(socket, data.hash);
         }
     });

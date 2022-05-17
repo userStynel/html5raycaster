@@ -13,13 +13,15 @@ router.route('/lobby').post(function(req, res){
 router.route('/game').get(function(req, res){
     let hash = req.query.room;
     let key = req.query.key
-    if(roomManager.roomlist[hash].auth(key)){
+    if(roomManager.roomlist[hash] === undefined)
+        res.render('error');
+    else if(roomManager.roomlist[hash].auth(key)){
         let admin = false;
         if(roomManager.roomlist[hash].userCount == 0) admin = true; 
         res.render('main', {name: req.cookies.name, hash: req.query.room, admin: admin});
     }
     else
-        res.send('인증되지 않은 사용자');
+        res.render('error');
 });
 
 router.route('/makingRoom').get(function(req, res){

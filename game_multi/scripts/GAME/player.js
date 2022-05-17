@@ -168,7 +168,6 @@ class Player{
             this.angle = fixAngular(this.angle - this.angular_velocity);
         else if(keyBuffer == 'e')
             this.angle = fixAngular(this.angle + this.angular_velocity);
-        keyBuffer = null;
         this.pos = this.pos.add(deltaPos);
     }
     unpack(d){
