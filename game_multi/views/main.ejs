@@ -8,13 +8,11 @@
     <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;" onload = "Init()">
         <div style = "display: flex;">
             <div style = "margin-right: 0.5rem;" id = "situation_panel"> 
-                <h5 style="text-align:center;"> ONLINE </h5>
-                <canvas id = "map"></canvas>
                 <div id = "hpbar" style = "--width: 50;" >
                     <div>    
                     </div>
                 </div>
-                <div id = "status"></div>
+            <div id = "status"></div>
             </div>
             <div style = "display:flex">
                 <div id = "wait_mode" style = "margin-right: 1rem">
@@ -48,11 +46,14 @@
                         <% if(admin) { %> 
                         <tr>
                             <td colspan="3" style = "text-align: center;">
-                                <p>map selector
+                                <p>맵 선택하기
                                     <select id = "mapselector">
-                                        <option value = "1">1</option>
-                                        <option value = "2">2</option>
+                                        <option value = "1">기본맵 1</option>
+                                        <option value = "2">기본맵 2</option>
                                     </select>
+                                    <input type = "file" id = "map_uploader" style="display:none;">
+                                    <br>
+                                    <label for = "map_uploader">자작맵 업로드</label>
                                 </p>
                                 <button id = "start-pause" class = "btn-start" onclick = "click_Game_Btn();">START!</button>
                             </td>
@@ -119,8 +120,14 @@
 
         function click_Game_Btn(){
             if(!playMode){
-                let map = parseInt(document.getElementById('mapselector').value);
-                socket.emit('click_game_start', map);
+                let map_uploader = document.getElementById('map_uploader');
+                let file = map_uploader.files[0];
+                let reader = new FileReader();
+                reader.addEventListener('load', (e)=>{
+                    let map_data = e.target.result;
+                    socket.emit('click_game_start', JSON.parse(map_data));
+                })
+                reader.readAsText(file);
             }
             else{
                 socket.emit('click_game_broken','');

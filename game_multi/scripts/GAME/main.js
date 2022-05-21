@@ -1,12 +1,4 @@
-var anim;
-
 function Init(){
-    Loading_Image(0);
-    Loading_ANIMATION();
-    
-    map_canvas.width = WIDTH * SIZE;
-    map_canvas.height = HEIGHT * SIZE;
-
     game_canvas.width = 15 * 40;
     game_canvas.height = 600;
     
@@ -34,6 +26,22 @@ function DrawMap(){
     }
 }
 
+function unpackGameStatus(game_status){
+    others = [];
+    let idx = 0;
+   while(game_status[idx] != undefined)
+   {
+        let status = game_status[idx];
+        if(status.id == socket.id){
+            player.unpack(status.data);
+        }
+        else{
+            others.push({id:status.id, pos:new Vector2(status.data.pos.x, status.data.pos.y)});
+        }
+        idx += 1;
+    }
+}
+
 function draw(){
     DrawMap();
     player.draw();
@@ -42,12 +50,9 @@ function draw(){
 function update(){
     if(IsImageFileLoaded()){
         player.update();
-        draw();
-        Render_Game(player);
+        //draw();
+        Render_Game();
         hpbar.setAttribute('style', `--width:${player.health}`);
-    }
-    else{
-        console.log("Loading Images...");
     }
 }
 

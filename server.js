@@ -1,20 +1,11 @@
 var mappingSocketToName = {};
-global.mappingSocketToName = mappingSocketToName;
 var mappingNameToSocket = {};
-global.mappingNameToSocket = mappingNameToSocket;
 
 var express = require('express');
 var http = require('http');
-var path = require('path');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var static = require('serve-static');
-
-/*
-var map = require('./Library/init').map;
-var sprite_map = require('./Library/init').sprite_map;
-var sprites = require('./Library/init').sprites;
-*/
 
 const router = require('./Library/routing').router;
 const SOCKET_EVENTS = require('./Library/socketEvents').SOCKET_EVENTS;
@@ -22,7 +13,6 @@ const RoomManager = require('./Library/roomManager').RoomManager;
 
 var app = express();
 var roomManager = new RoomManager();
-global.roomManager = roomManager;
 
 const PORT = process.env.PORT || 3000;
 
@@ -41,7 +31,9 @@ var server = http.createServer(app);
 var io = require('socket.io')(server);
 
 global.io = io;
-
+global.roomManager = roomManager;
+global.mappingNameToSocket = mappingNameToSocket;
+global.mappingSocketToName = mappingSocketToName;
 
 server.listen(PORT, function(){
     console.log('server is on!');

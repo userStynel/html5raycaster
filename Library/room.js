@@ -1,5 +1,4 @@
 const userInfo  = require('./userInfo').userInfo;
-const Vector2 = require('./userInfo').Vector2;
 
 class Room{
     constructor(hash, title, password, maxPlayer){
@@ -46,13 +45,13 @@ class Room{
         if(id == this.captain)
             this.clearflag = true;
     }
-    sendingUserData(){
-        let ret = {};
+    GameStatus(){
+        let ret = [];
         for(let id in this.users){
             let user = this.users[id];
             if(user.pos == null) continue;
             let data = user.packing(); 
-            ret[id] = data;
+            ret.push({id:id, data: data});
         }
         return ret;
     }
@@ -75,7 +74,7 @@ class Room{
             }
         }
         if(this.goflag) io.to(this.hash).emit('gameover', this.serializeUL());
-        let ret = this.sendingUserData();
+        let ret = this.GameStatus();
         for(let id in this.users){
             if(this.users[id].team == 1) cntLeft += 1;
             else if(this.users[id].team == 2) cntRight += 1;

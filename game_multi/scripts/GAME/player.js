@@ -136,22 +136,6 @@ class Player{
         map_ctx.arc(this.pos.x*8, this.pos.y*8, PLAYER_RADIUS, 0, Math.PI * 2);
         map_ctx.closePath();
         map_ctx.fill();
-
-        // let line = this.pos.add(new Vector2(1, 0).rotate(this.angle).mul(15));
-        // map_ctx.beginPath();
-        // map_ctx.strokeStyle = "green";
-        // map_ctx.lineTo(this.pos.x*8, this.pos.y*8);
-        // map_ctx.lineTo(line.x+this.pos.x*8, line.y+this.pos.y*8);
-        // map_ctx.closePath();
-        // map_ctx.stroke();
-
-        // for(let lay of this.Rays){
-            //     map_ctx.fillStyle = "crimson";
-        //     map_ctx.beginPath();
-        //     map_ctx.arc(lay.intersect.point.x, lay.intersect.point.y, PLAYER_RADIUS, 0, Math.PI * 2);
-        //     map_ctx.closePath();
-        //     map_ctx.fill();
-        // }
     }
     processInput(){
         if(keyBuffer === null) return;

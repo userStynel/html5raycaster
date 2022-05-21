@@ -3,7 +3,7 @@ const G = 1;
 const B = 2;
 const A = 3;
 
-function Render_FloorAndCeil(me){
+function Render_Floor(me){
     let pos = me.pos;
     let angle = me.angle;
     let fov = me.fov
@@ -28,16 +28,12 @@ function Render_FloorAndCeil(me){
             let idx = 4 * (game_canvas.width * y + x);
             let texidx = tx + 64 * ty;
             
-            buffer[idx + 0] = data_floor[0][texidx][R];
-            buffer[idx + 1] = data_floor[0][texidx][G];
-            buffer[idx + 2] = data_floor[0][texidx][B];
-            buffer[idx + 3] = data_floor[0][texidx][A];
+            buffer[idx + 0] = floor_tile_imgData[0].data[texidx][R];
+            buffer[idx + 1] = floor_tile_imgData[0].data[texidx][G];
+            buffer[idx + 2] = floor_tile_imgData[0].data[texidx][B];
+            buffer[idx + 3] = floor_tile_imgData[0].data[texidx][A];
         }
     }
-}
-
-function Render_Weapon(){
-    game_ctx.drawImage(wp_img, (game_canvas.width - wp_img.width)/2, game_canvas.height - wp_img.height);
 }
 
 function Render_Wall(player){
@@ -52,14 +48,14 @@ function Render_Wall(player){
             drawEnd = h-1;
        for(let y = drawStart; y<drawEnd; y++){
             let d = (y * 256 - h * 128 + height * 128) | 0;
-            let texY = ( d * 64/ (height * 256))/* | 0*/;
+            let texY = ( d * 64 / (height * 256))/* | 0*/;
             if (texY < 0) texY = 0;
             let idx = 4 * (game_canvas.width * y + i);
-            let texidx = (((lay.hitWallTexcoordX * img_wall[lay.hitWallTextureType-1].width) | 0) + 64 * (texY | 0));
-            buffer[idx + 0] = data_wall[lay.hitWallTextureType-1][texidx][R];
-            buffer[idx + 1] = data_wall[lay.hitWallTextureType-1][texidx][G];
-            buffer[idx + 2] = data_wall[lay.hitWallTextureType-1][texidx][B];
-            buffer[idx + 3] = data_wall[lay.hitWallTextureType-1][texidx][A];
+            let texidx = (((lay.hitWallTexcoordX * wall_tile_imgData[lay.hitWallTextureType-1].width) | 0) + 64 * (texY | 0));
+            buffer[idx + 0] = wall_tile_imgData[lay.hitWallTextureType-1].data[texidx][R];
+            buffer[idx + 1] = wall_tile_imgData[lay.hitWallTextureType-1].data[texidx][G];
+            buffer[idx + 2] = wall_tile_imgData[lay.hitWallTextureType-1].data[texidx][B];
+            buffer[idx + 3] = wall_tile_imgData[lay.hitWallTextureType-1].data[texidx][A];
        }
     }
 }
@@ -71,7 +67,12 @@ function Render_Sprite(me){
     
     let dir =  new Vector2(1, 0).rotate(angle);
     let plane = new Vector2(0, Math.tan(fov/2)).rotate(angle);
-    let ou = sprites.concat(others);
+    let ch_sp = [];
+    for(let idx = 0; idx<others.length; idx++){
+        let obj = others[idx];
+        ch_sp.push(new Sprite(CHARACTER, 0, new Vector2(obj.pos.x, obj.pos.y)));
+    }
+    let ou = sprites.concat(ch_sp);
     
     // 플레이어와 거리가 먼 순서대로 정렬
     ou = ou.sort((a, b) => {
@@ -82,10 +83,17 @@ function Render_Sprite(me){
     
     for(let i = 0; i<ou.length; i++)
     {
-        let textureType = ou[i].type;
+        let textureTypeIDX = ou[i].textureIDX;
         let spriteX = ou[i].pos.x-pos.x; 
         let spriteY = ou[i].pos.y-pos.y;
-        
+        let imgData;
+        if(ou.type == NATURAL)
+        {
+            imgData = sprite_tile_imgData;
+        }
+        else{
+            imgData = character_tile_imgData;
+        }
         let invDet = 1.0 / (plane.x * dir.y - dir.x * plane.y);
         
         let transformX = invDet * (dir.y * spriteX - dir.x * spriteY);
@@ -114,27 +122,32 @@ function Render_Sprite(me){
             for(let y = drawStartY; y<=drawEndY; y++){
                 let ratioB = (y - drawStartY) / (drawEndY - drawStartY);
                 let idx = 4 * (game_canvas.width * y + x);
-                let tx = (img_sprite[textureType-1].width * ratioA | 0) & (63);
-                let ty = (img_sprite[textureType-1].height * ratioB | 0) & (63);
+                let tx = (imgData[textureTypeIDX].width * ratioA | 0) & (63);
+                let ty = (imgData[textureTypeIDX].height * ratioB | 0) & (63);
                 let texidx = ty * 64 + tx
-                if( data_sprite[textureType-1][texidx][3] == 0) continue;
-                buffer[idx + 0] = data_sprite[textureType-1][texidx][R];
-                buffer[idx + 1] = data_sprite[textureType-1][texidx][G];
-                buffer[idx + 2] = data_sprite[textureType-1][texidx][B];
-                buffer[idx + 3] = data_sprite[textureType-1][texidx][A];
+                if(imgData[textureTypeIDX].data[texidx][3] == 0) continue;
+                buffer[idx + 0] = imgData[textureTypeIDX].data[texidx][R];
+                buffer[idx + 1] = imgData[textureTypeIDX].data[texidx][G];
+                buffer[idx + 2] = imgData[textureTypeIDX].data[texidx][B];
+                buffer[idx + 3] = imgData[textureTypeIDX].data[texidx][A];
             }
         }
     }
 }
 
-function Render_Game(me){
+function Render_UI(){
+    let img = ui_tile_img[0];
+    game_ctx.drawImage(img, (game_canvas.width - img.width)/2, game_canvas.height - img.height);
+}
+
+function Render_Game(){
     game_ctx.fillStyle = "pink";
     game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
     g = game_ctx.getImageData(0, 0, game_canvas.width, game_canvas.height);
     buffer = g.data;
-    Render_FloorAndCeil(player);
+    Render_Floor(player);
     Render_Wall(player);
     Render_Sprite(player);
     game_ctx.putImageData(g, 0, 0);
-    Render_Weapon();
+    Render_UI();
 }

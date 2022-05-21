@@ -1,9 +1,5 @@
-const Init_GameSetting = require('./init').Init_GameSetting;
+const Initial_GameSetting = require('./init').Initial_GameSetting;
 const Vector2  = require('./userInfo').Vector2;
-const userInfo  = require('./userInfo').userInfo;
-var map = require('./init').map;
-var sprite_map = require('./init').sprite_map;
-var sprites = require('./init').sprites;
 
 function SOCKET_EVENTS(socket, hash){
     let room = roomManager.roomlist[hash];
@@ -86,10 +82,10 @@ function SOCKET_EVENTS(socket, hash){
         io.to(hash).emit('user_coming', roomManager.roomlist[hash].serializeUL());
     });
 
-    socket.on('click_game_start', (map)=>{
-       let data = Init_GameSetting(hash, map);
+    socket.on('click_game_start', (map_data)=>{
+       let game_status = Initial_GameSetting(roomManager.roomlist[hash], map_data);
        roomManager.roomlist[hash].playMode = true;
-       io.to(hash).emit('game_start', data);
+       io.to(hash).emit('game_start', {map_data:map_data, game_status: game_status});
     });
 
     socket.on('click_game_broken', ()=>{

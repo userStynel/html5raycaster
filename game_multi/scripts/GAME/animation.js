@@ -1,6 +1,3 @@
-var ANIMATION_LIST = {}
-var ANIMATION_QUEUE = {};
-
 class spriteAnimation{
     constructor(name, size, sec){
         this.filesrc = `/texture/animation/${name}.png`;
@@ -63,5 +60,15 @@ class AnimationFactory{
             return false;
         }
         return true;
+    }
+}
+
+class AnimationController{
+    constructor(){
+        ANIMATION_LIST = {};
+        ANIMATION_QUEUE = {};
+    }
+    addAnimation(animation_name, atlas_img, size, period){
+        //ANIMATION_LIST[animation_name] = new spriteAnimation()
     }
 }
