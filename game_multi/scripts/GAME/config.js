@@ -2,7 +2,6 @@ var WIDTH = 32
 var HEIGHT = 17
 
 const SIZE = 8
-
 const FRAME_RATE = 32;
 
 const PLAYER_RADIUS = 3
@@ -50,6 +49,4 @@ var sprite_tile_imgData = [];
 var keyBuffer2 = [];
 var mouseBuffer = [];
 
-
-var gun_animated = false;
 var game_mode = true;

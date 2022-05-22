@@ -1,5 +1,7 @@
 const Initial_GameSetting = require('./init').Initial_GameSetting;
 const Vector2  = require('./userInfo').Vector2;
+const fs = require("fs");
+const path = require("path");
 
 function SOCKET_EVENTS(socket, hash){
     let room = roomManager.roomlist[hash];
@@ -82,15 +84,30 @@ function SOCKET_EVENTS(socket, hash){
         io.to(hash).emit('user_coming', roomManager.roomlist[hash].serializeUL());
     });
 
-    socket.on('click_game_start', (map_data)=>{
-       let game_status = Initial_GameSetting(roomManager.roomlist[hash], map_data);
-       roomManager.roomlist[hash].playMode = true;
-       io.to(hash).emit('game_start', {map_data:map_data, game_status: game_status});
+    socket.on('click_game_start', (data)=>{
+        let map_data;
+        let game_status
+        if(data.defaultMap == false){
+            map_data = data.data;
+            if(map_data == undefined)
+            {
+                socket.emit('unvalid_map_file');
+                return;
+            }
+        }
+        else if(data.defaultMap == true){
+            let idx = data.idx+1;
+            map_data = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../map/defaultmap${idx}.json`)));
+            console.log(path.resolve(__dirname, `../map/defaultmap${idx}.json`));
+        }
+        game_status = Initial_GameSetting(roomManager.roomlist[hash], map_data);
+        roomManager.roomlist[hash].playMode = true;
+        io.to(hash).emit('game_start', {map_data:map_data, game_status: game_status});
     });
 
     socket.on('click_game_broken', ()=>{
         roomManager.roomlist[hash].playMode = false;
-        io.to(hash).emit('game_finish', '');
+        io.to(hash).emit('game_finish', roomManager.roomlist[hash].serializeUL());
     })
 }
 exports.SOCKET_EVENTS = SOCKET_EVENTS;

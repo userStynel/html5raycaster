@@ -76,11 +76,12 @@ function ADD_CLIENT_SOCKET_EVENT(){
         checkMode();
     });
 
-    socket.on('game_finish', ()=>{
+    socket.on('game_finish', (user_list)=>{
         DISABLED_INGAME_EVENT();
         playMode = false;
         isWaitMode = true;
         checkMode();
+        updateUserList(user_list);
     });
 
     socket.on('MSG', (data)=>{
@@ -112,4 +113,8 @@ function ADD_CLIENT_SOCKET_EVENT(){
     socket.on('user_leaving', (user_list)=>{
         updateUserList(user_list);
     });
+
+    socket.on('unvalid_map_file', ()=>{
+        alert('맵 파일을 읽을 수 없습니다!');
+    })
 }

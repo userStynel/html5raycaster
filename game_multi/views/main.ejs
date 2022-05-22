@@ -4,6 +4,17 @@
         <title>hello <%=name%></title>
         <link rel = "stylesheet" href = "/style/hpbar.css">
         <script src = "/scripts/socket.io.js"></script>
+        <% if(admin) { %> 
+            <style>
+                .btn{
+                    padding:2.5px; border:1px solid white; width: fit-content; 
+                    margin: 0 auto;
+                }
+                .btn:hover, .btn *:hover{
+                    cursor: pointer;
+                }
+            </style>
+        <% } %>
     </head>
     <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;" onload = "Init()">
         <div style = "display: flex;">
@@ -47,15 +58,18 @@
                         <tr>
                             <td colspan="3" style = "text-align: center;">
                                 <p>맵 선택하기
+                                    <br>
                                     <select id = "mapselector">
-                                        <option value = "1">기본맵 1</option>
-                                        <option value = "2">기본맵 2</option>
                                     </select>
                                     <input type = "file" id = "map_uploader" style="display:none;">
-                                    <br>
-                                    <label for = "map_uploader">자작맵 업로드</label>
+                                    <div class = "btn">
+                                        <label for = "map_uploader">자작맵 업로드</label>
+                                    </div>
                                 </p>
-                                <button id = "start-pause" class = "btn-start" onclick = "click_Game_Btn();">START!</button>
+                                <button id = "btn-start" onclick = "click_Game_Btn();" style = "display: none;">GAME START!</button>
+                                <div class = "btn">
+                                    <label for = "btn-start" id = "start-pause">GAME START!</label>
+                                </div>
                             </td>
                         </tr>
                         <% } %>
@@ -81,6 +95,10 @@
             </div>
         </div>
     </body>
+    <% if(admin) { %>
+        <script src = "/scripts/GAME/adminconfig.js"></script>
+        <script>ADMIN_INIT();</script>
+    <% } %>
     <script>
         var name = "<%= name %>";
         var hash = "<%= hash %>";
@@ -118,21 +136,6 @@
                 socket.emit('move-team', team);
         }
 
-        function click_Game_Btn(){
-            if(!playMode){
-                let map_uploader = document.getElementById('map_uploader');
-                let file = map_uploader.files[0];
-                let reader = new FileReader();
-                reader.addEventListener('load', (e)=>{
-                    let map_data = e.target.result;
-                    socket.emit('click_game_start', JSON.parse(map_data));
-                })
-                reader.readAsText(file);
-            }
-            else{
-                socket.emit('click_game_broken','');
-            }
-        }
 
         function checkMode(){
             let situation_panel = document.getElementById('situation_panel');

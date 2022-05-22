@@ -128,17 +128,24 @@
         }
 
         function ADMIT_TILE(result){
-            let canvas = document.createElement('canvas');
-            let ctx = canvas.getContext('2d');
-            let img = new Image(64, 64);
+            let img = new Image();
             img.src = result;
             img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                let url = canvas.toDataURL();
+                let temp_canvas = document.createElement('canvas');
+                let temp_ctx = temp_canvas.getContext('2d');
+                temp_canvas.width = img.width;
+                temp_canvas.height = img.height;
+                temp_ctx.drawImage(img, 0, 0, img.width, img.height);
+                let url = temp_canvas.toDataURL();
+                let imgd = temp_ctx.getImageData(0, 0, img.width, img.height).data;
+                let rgbArray = new Array(img.width * img.height);
+                for(let p = 0; p<img.width*img.height; p++){
+                    rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
+                }
                 document.getElementById(`wall_tile_${wall_tiles.length}`).src = url;
-                wall_tiles.push(url);
+                wall_tiles_innerURL.push(url);
+                wall_tiles.push({width:img.width, height:img.height, data:rgbArray});
+                delete temp_canvas;
             }
             CLOSE_ADDFILE_MODAL();
         }

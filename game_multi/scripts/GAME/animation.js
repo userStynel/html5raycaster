@@ -1,62 +1,60 @@
 class spriteAnimation{
-    constructor(name, size, sec){
+    constructor(name, size, duration){
         this.filesrc = `/texture/animation/${name}.png`;
         this.fullIMG;
-        this.size = size;
         this.cutIMGS = [];
-        this.cutIMGDATA = [];
-        this.endFrame = (32 * sec)|0;
-        this.count
-        this.IMG();
-        this.loaded = false;
+        this.size = size;
+        this.duration;
     }
     SLICE(idx){
-        let i = idx;
-        if(i<this.count){
-            let that = this;
+        let that = this;
+        return new Promise((resolve, reject)=>{
+            let i = idx;
             let temp = document.createElement('canvas');
             let tempctx = temp.getContext('2d');
-            temp.width = this.size.width; temp.height = this.size.height;
-            tempctx.drawImage(this.fullIMG, i*this.size.width, 0, this.size.width, this.size.height, 0, 0, temp.width, temp.height);
+            temp.width = that.size.width; temp.height = that.size.height;
+            tempctx.drawImage(that.fullIMG, i*that.size.width, 0, that.size.width, that.size.height, 0, 0, temp.width, temp.height);
             let img = new Image();
             img.src = temp.toDataURL();
             temp.remove();
-            img.onload = function(){
+            img.onload = () => {
                 that.cutIMGS[i] = img;
-                that.SLICE(i+1);
+                resolve();
             }
-        }
-        else this.loaded = true;
+        });
     }
-    IMG(){
-        let img = new Image();
-        let that = this;
-        img.src = this.filesrc;
-        img.onload = function(){
-            that.fullIMG = img;
-            that.count = (that.fullIMG.width / that.size.width) | 0;
-            that.SLICE(0);
-        };
+    LOAD(){
+        return new Promise((resolve, reject)=>{
+            let img = new Image();
+            let that = this;
+            img.src = this.filesrc;
+            img.onload = function(){
+                that.fullIMG = img;
+                let count = (that.fullIMG.width / that.size.width) | 0;
+                let slicePromises = [];
+                for(let i = 0; i<count; i++)
+                    slicePromises.push(SLICE(i));
+                Promise.all(slicePromises);
+                resolve();
+            };
+        });
     }
 }
 
 class AnimationFactory{
-    constructor(target, anim){
+    constructor(game, target, anim){
+        this.game = game;
         this.target = target;
         this.anim = ANIMATION_LIST[anim];
-        this.flowFrame = 0;
-        this.oneCutlength = (this.anim.endFrame/this.anim.count)|0;
+        this.frame = 0;
+        this.oneCutlength = (this.anim.duration/this.anim.cutIMGS.length)|0;
     }
     update(){
-        this.flowFrame += 1;
+        this.frame += 1;
+        this.game.target = this.anim.cutIMGS[((this.frame/this.oneCutlength)|0) % this.anim.cutIMGS.length];
         this.flowFrame %= this.anim.endFrame;
-        if(this.target == 0)
-        {
-            wp_img = this.anim.cutIMGS[((this.flowFrame/this.oneCutlength)|0)%this.anim.count];
-        }
         if(this.flowFrame == 0)
         {
-            if(this.target == 0) gun_animated = false;
             return false;
         }
         return true;
@@ -64,11 +62,12 @@ class AnimationFactory{
 }
 
 class AnimationController{
-    constructor(){
+    constructor(game){
+        this.game = game;
         ANIMATION_LIST = {};
         ANIMATION_QUEUE = {};
     }
-    addAnimation(animation_name, atlas_img, size, period){
+    addAnimation(game, target, anim){
         //ANIMATION_LIST[animation_name] = new spriteAnimation()
     }
 }
