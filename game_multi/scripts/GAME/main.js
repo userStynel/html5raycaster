@@ -42,11 +42,6 @@ function unpackGameStatus(game_status){
     }
 }
 
-function draw(){
-    DrawMap();
-    player.draw();
-}
-
 function update(){
     if(IsImageFileLoaded()){
         player.update();

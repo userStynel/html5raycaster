@@ -46,7 +46,4 @@ var wall_tile_imgData = [];
 var floor_tile_imgData = [];
 var sprite_tile_imgData = [];
 
-var keyBuffer2 = [];
-var mouseBuffer = [];
-
 var game_mode = true;
