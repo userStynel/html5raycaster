@@ -2,41 +2,42 @@
 <html>
     <head>
         <title>MAP EDITOR</title>
-        <style>
-            .upload_btn{
-                cursor: pointer;
-                text-align:center; 
-                border:1px black solid; 
-                padding:0.2rem;
-            }
-            .upload_btn:hover{
-                background-color: black;
-                color: white;
-            }
-        </style>
+        <link rel = "stylesheet" href = "/style/mapeditor.css">
     </head>
     <script>
         const WALL = 0;
         const FLOOR = 1;
 
-        const default_wall_tiles_length = 2;
-        const default_floor_tiles_length = 1;
+        const DEFAULT_NUMBER_OF_WALL_TILES = 2;
+        const DEFAULT_NUMBER_OF_FLOOR_TILES = 1;
 
         var nowclickedType = 0; // 0: wall | 1: floor
         var nowclickedIdx = 0;
-        var width = 19;
-        var height = 19;
-        var map = [];
+
+        var map_width = 19;
+        var map_height = 19;
+        
+        var map_floor = [];
+        var map_wall = [];
+
         var sprites = [];
         
-        var wall_tiles_innerURL = [];
-        var floor_tiles_innerURL = [];
-
         var wall_tiles = [];
         var floor_tiles = [];
         var sprite_tiles = [];
 
-        function CONVERT_RMP(){
+        function makeModal(){
+            let modal_bg = document.createElement('div');
+            let modal = document.createElement('div');
+            modal_bg.id = 'modal_bg';
+            modal.id = 'modal';
+            //modal.innerHTML = 
+            modal_bg.appendChild(modal); 
+            document.body.appendChild(modal_bg);
+            return modal;
+        }
+
+        function convertToRMP(){
             let ret = {};
             ret['name'] = document.getElementById('mapname').value;
             ret['width'] = width;
@@ -61,48 +62,36 @@
             xhr.send(`filename=${ret.name}&data=${data}`);
         }
 
-        function LOADING_RMP(){
-            let modal_bg = document.createElement('div');
-            let modal = document.createElement('div');
-            modal_bg.id = 'modal_bg';
-            modal_bg.style.justifyContent = 'center';
-            modal_bg.style.alignItems = 'center';
-            modal_bg.style.display='flex';
-            modal_bg.style.position='absolute';
-            modal_bg.style.left = '0px';
-            modal_bg.style.top = '0px';
-            modal_bg.style.width = '100%';
-            modal_bg.style.height = '100%';
-            modal_bg.style.background = 'rgba(0, 0, 0, 0.7)';
-
-            modal.id = 'modal';
-            modal.style.background = 'white';
-            modal.style.color = 'black';
-            modal.style.padding = '0rem 2rem 0rem 2rem';
-            modal.style.height = 'fit-content';
-            modal.style.width = 'fit-content';
+        function loadRMP(){
+            let modal = makeModal();
             modal.innerHTML = 
             "<h3 style = 'text-align:center;'>JSON LOADER</h3>" +
             "<input type = 'file' id = 'RMP_uploader' style = 'display:none;'>" +
             "<label for = 'RMP_uploader'><p class = 'upload_btn'>upload</p></label>"+
-            "<p style = 'text-align:center'><button id = 'btn_admit' style = 'margin-right:0.5rem;' disabled>LOAD</button><button onclick = 'CLOSE_ADDFILE_MODAL()'>CLOSE</button></p>";+
-            modal_bg.appendChild(modal); 
-            document.body.appendChild(modal_bg);
+            "<p style = 'text-align:center'><button id = 'btn_admit' style = 'margin-right:0.5rem;' disabled>LOAD</button>" +
+            "<button onclick = 'CLOSE_ADDFILE_MODAL()'>CLOSE</button></p>";
             let file = document.getElementById('RMP_uploader');
             file.onchange = () => {
                 let fileList = file.files;
                 let reader = new FileReader();
                 reader.onload = (e) => {
-                    let text = e.target.result;
+                    let text = reader.result;
                     document.getElementById('btn_admit').disabled = false;
                     document.getElementById('btn_admit').addEventListener('click', ()=>{
-                        let ob = JSON.parse(text);
-                        let map = ob.map;
-                        for(let i = 0; i<ob.tiles.length; i++) tiles_src[2+i] = ob.tiles[i];
+                        let obj = JSON.parse(text);
+                        map_floor = obj.map_floor;
+                        map_wall = obj.map_wall;
+                        for(let i = 0; i<obj.wallTilesInfo.length; i++){
+                            wall_tiles[i] = obj.wallTilesInfo[i];
+                        }
+
+                        for(let i = 0; i<obj.floorTilesInfo.length; i++){
+                            floor_tiles[i] = obj.floorTilesInfo[i];
+                        }
+
                         for(let y = 0; y<3; y++){
                             for(let x = 0; x<3; x++){
-                                let idx = y*3 + x;
-                                if(idx < 2) continue;
+                                let idx = y * 3 + x;
                                 let img_cell = document.getElementById(`tile_${idx}`);
                                 if(idx < tiles_src.length) img_cell.src = tiles_src[idx];
                             }
@@ -119,7 +108,7 @@
             }
         }
 
-        function CLOSE_ADDFILE_MODAL(){
+        function closeModal(){
             let modal_bg = document.getElementById('modal_bg');
             let modal = document.getElementById('modal');
             while(modal.hasChildNodes()){modal.removeChild(modal.firstChild);};
@@ -127,7 +116,7 @@
             document.body.removeChild(modal_bg);
         }
 
-        function ADMIT_TILE(result){
+        function admitTile(result){
             let img = new Image();
             img.src = result;
             img.onload = () => {
@@ -147,29 +136,11 @@
                 wall_tiles.push({width:img.width, height:img.height, data:rgbArray});
                 delete temp_canvas;
             }
-            CLOSE_ADDFILE_MODAL();
+            closeModal();
         }
         
-        function OPEN_ADDFILE_MODAL(){
-            let modal_bg = document.createElement('div');
-            let modal = document.createElement('div');
-            modal_bg.id = 'modal_bg';
-            modal_bg.style.justifyContent = 'center';
-            modal_bg.style.alignItems = 'center';
-            modal_bg.style.display='flex';
-            modal_bg.style.position='absolute';
-            modal_bg.style.left = '0px';
-            modal_bg.style.top = '0px';
-            modal_bg.style.width = '100%';
-            modal_bg.style.height = '100%';
-            modal_bg.style.background = 'rgba(0, 0, 0, 0.7)';
-
-            modal.id = 'modal';
-            modal.style.background = 'white';
-            modal.style.color = 'black';
-            modal.style.padding = '0rem 2rem 0rem 2rem';
-            modal.style.height = 'fit-content';
-            modal.style.width = 'fit-content';
+        function openAddTileModal(type = WALL){
+            let modal = makeModal();
             modal.innerHTML = 
             "<h3 style = 'text-align:center;'>TILE UPLOADER</h3>" + 
             "<p style = 'text-align:center'><img id = 'tile_preview' style='width:128px; height:128px; border: 0.07rem black solid;'></p>"+
@@ -193,115 +164,82 @@
             }
         }
 
-        function INIT_MAP(){
-            for(let y = 0; y<height; y++){
-                map[y] = [];
-                for(let x = 0; x<width; x++){
-                    map[y][x] = 0;
+        function initMap(){
+            for(let y = 0; y<map_height; y++){
+                map_floor[y] = [];
+                map_wall[y] = [];
+                for(let x = 0; x<map_width; x++){
+                    map_floor[y][x] = 0;
+                    map_wall[y][x] = 0;
                 }
             }
         }
 
-        function LOAD_WALL_TILE(idx){
+        function loadDefaultWallTile(idx){
             return new Promise((resolve, reject)=>{
                 let i = idx;
                 let img = new Image();
-                img.src = `/texture/wall/wall_${idx+1}.png`;
+                img.src = `/texture/wall/wall_${idx}.png`;
                 img.onload = () =>{
                     let temp_canvas = document.createElement('canvas');
                     let temp_ctx = temp_canvas.getContext('2d');
                     temp_canvas.width = img.width;
                     temp_canvas.height = img.height;
                     temp_ctx.drawImage(img, 0, 0, img.width, img.height);
-
                     let imgd = temp_ctx.getImageData(0, 0, img.width, img.height).data;
                     let rgbArray = new Array(img.width * img.height);
                     for(let p = 0; p<img.width*img.height; p++){
                         rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
                     }
-                    wall_tiles[i] = {width:img.width, height:img.height, data:rgbArray};
-                    wall_tiles_innerURL[i] = temp_canvas.toDataURL();
+                    wall_tiles[i] = {width:img.width, height:img.height, pixelsData:rgbArray, dataURL: temp_canvas.toDataURL()};
+                    delete temp_ctx;
                     delete temp_canvas;
                     resolve();
                 };
             })
         }
 
-        function LOAD_FLOOR_TILE(idx=0){
+        function loadDefaultFloorTile(idx=0){
             return new Promise((resolve, reject)=>{
                 let i = idx;
                 let img = new Image();
-                img.src = `/texture/floor/floor_${idx+1}.png`;
+                img.src = `/texture/floor/floor_${idx}.png`;
                 img.onload = () =>{
                     let temp_canvas = document.createElement('canvas');
                     let temp_ctx = temp_canvas.getContext('2d');
                     temp_canvas.width = img.width;
                     temp_canvas.height = img.height;
                     temp_ctx.drawImage(img, 0, 0, img.width, img.height);
-
                     let imgd = temp_ctx.getImageData(0, 0, img.width, img.height).data;
                     let rgbArray = new Array(img.width * img.height);
                     for(let p = 0; p<img.width*img.height; p++){
                         rgbArray[p] = [imgd[4*p], imgd[4*p+1], imgd[4*p+2], imgd[4*p+3]];
                     }
-                    floor_tiles[i] = {width:img.width, height:img.height, data:rgbArray};
-                    floor_tiles_innerURL[i] = temp_canvas.toDataURL();
+                    floor_tiles[i] = {width:img.width, height:img.height, pixelsData:rgbArray, dataURL: temp_canvas.toDataURL()};
+                    delete temp_ctx;
                     delete temp_canvas;
                     resolve();
                 };
             })
         }
 
-        function LOAD_IMAGE(){
-            LOAD_WALL_TILE(0).then(()=>{return LOAD_WALL_TILE(1)}).then(()=>{return LOAD_FLOOR_TILE(0)}).then(()=>{INIT_TILESET()});
-        }
-
-        function IMG_CELL(img_cell, x, y){
-            if(nowclickedType == WALL){
-                img_cell.src = wall_tiles_innerURL[nowclickedIdx];
-                map[y][x] = nowclickedIdx+1;
-            }
-            else{
-                img_cell.src = floor_tiles_innerURL[nowclickedIdx];
-                map[y][x] = 0;
-            }
-        }
-
-        function MAKE_GREED(height, width){
-            for(let y = 0; y<height; y++){
-                let row = document.createElement('div');
-                row.style.display = 'flex';
-                for(let x = 0; x<width; x++){
-                    let px = x; let py = y;
-                    let img_cell = document.createElement('img');
-                    img_cell.id = `cell_${y}_${x}`;
-                    img_cell.width = (64*0.5)|0; img_cell.height = (64*0.5)|0;
-                    img_cell.border = "0.7rem white solid;"
-                    img_cell.addEventListener('click', ()=>{
-                        IMG_CELL(img_cell, px, py);
-                    })
-                    img_cell.addEventListener('dragover', ()=>{
-                        IMG_CELL(img_cell, px, py);
-                    })
-                    row.appendChild(img_cell);
-                }
-                document.getElementById('map_editor').appendChild(row);
-            }
-        }
-
-        function INIT_TILESET(){
+        function initTileSet(){
             for(let y = 0; y<3; y++){
                 let row = document.createElement('div');
                 row.style.display = 'flex';
                 for(let x = 0; x<3; x++){
                     let idx = y *3 + x;
                     let img_cell = document.createElement('img');
-                    if(wall_tiles[idx] != undefined){ img_cell.src = wall_tiles_innerURL[idx]};
-                    img_cell.id = `wall_tile_${idx}`;
-                    img_cell.width = (64*0.7)|0; img_cell.height = (64*0.7)|0;
-                    img_cell.border = "0.7rem white solid;"
+                    img_cell.id = `wall_tile_${idx+1}`;
+                    img_cell.classList.add('tile');
+                    img_cell.width = (64*0.7)|0; 
+                    img_cell.height = (64*0.7)|0;
+                    if(wall_tiles[idx+1] != undefined){
+                        img_cell.classList.add('activated');
+                        img_cell.src = wall_tiles[idx+1].dataURL;
+                    }
                     img_cell.addEventListener('click', ()=>{
-                        nowclickedIdx = idx;
+                        nowclickedIdx = idx+1;
                         nowclickedType = WALL;
                     });
                     row.appendChild(img_cell);
@@ -314,51 +252,98 @@
                 row.style.display = 'flex';
                 for(let x = 0; x<3; x++){
                     let idx = y*3 + x;
-                    if(floor_tiles[idx] != undefined){
-                        let img_cell = document.createElement('img');
-                        img_cell.src = floor_tiles_innerURL[idx];
-                        img_cell.id = `floor_tile_${idx}`;
-                        img_cell.width = (64*0.7)|0; img_cell.height = (64*0.7)|0;
-                        img_cell.border = "0.7rem white solid;"
-                        img_cell.addEventListener('click', ()=>{
-                            nowclickedIdx = idx;
-                            nowclickedType = FLOOR;
-                        });
-                        row.appendChild(img_cell);
+                    idx = idx + 1;
+                    let img_cell = document.createElement('img');
+                    img_cell.id = `floor_tile_${idx}`;
+                    img_cell.classList.add('tile');
+                    img_cell.width = (64*0.7)|0; 
+                    img_cell.height = (64*0.7)|0;
+                    if(floor_tiles[idx] !== undefined){
+                        img_cell.classList.add('activated');
+                        img_cell.src = floor_tiles[idx].dataURL;
                     }
+                    img_cell.addEventListener('click', ()=>{
+                        nowclickedIdx = idx;
+                        nowclickedType = FLOOR;
+                    });
+                    row.appendChild(img_cell);
                 }
                 document.getElementById('floor_tile_set').appendChild(row);
             }
         }
 
-        function INIT(){
-            LOAD_IMAGE();
-            INIT_MAP();
-            MAKE_GREED(height, width);
+        function loadImages(){
+            let promises = [];
+            for(let i = 1; i <= DEFAULT_NUMBER_OF_WALL_TILES; i++)
+                promises.push(loadDefaultWallTile(i));
+            for(let i = 1; i <= DEFAULT_NUMBER_OF_FLOOR_TILES; i++)
+                promises.push(loadDefaultFloorTile(i));
+            let a = Promise.all(promises).then(initTileSet);
         }
 
+        function setImageCell(img_cell, x, y){
+            if(nowclickedType == WALL){
+                img_cell.src = wall_tiles[nowclickedIdx].dataURL;
+                map_wall[y][x] = nowclickedIdx;
+            }
+            else{
+                img_cell.src = floor_tiles[nowclickedIdx].dataURL;
+                map_floor[y][x] = nowclickedIdx;
+            }
+        }
+
+        function makeGRID(height, width){
+            for(let y = 0; y<height; y++){
+                let row = document.createElement('div');
+                row.style.display = 'flex';
+                for(let x = 0; x<width; x++){
+                    let px = x; let py = y;
+                    let img_cell = document.createElement('img');
+                    img_cell.id = `cell_${y}_${x}`;
+                    img_cell.width = (64*0.5)|0; img_cell.height = (64*0.5)|0;
+                    img_cell.border = "0.7rem white solid;"
+                    img_cell.addEventListener('click', ()=>{
+                        setImageCell(img_cell, px, py);
+                    })
+                    img_cell.addEventListener('dragover', ()=>{
+                        setImageCell(img_cell, px, py);
+                    })
+                    row.appendChild(img_cell);
+                }
+                document.getElementById('map_editor').appendChild(row);
+            }
+        }
+
+        function init(){
+            loadImages();
+            initMap();
+            makeGRID(map_height, map_width);
+        }
     </script>
-    <body style = "background: #101010; color:white;" onload="INIT();">
-        <div style = "display:flex">
+    <body style = "background: #101010; color:white;" onload="init();">
+        <h2 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">MAP EDITOR <input id = "mapname" type = "text" placeholder="map name" style = "margin:0;padding:0;vertical-align: middle;"></h2>
+        <div style = "display: flex; justify-content: center;">
+            <label for = "btn_convert"><p style = "margin-right:0.5rem;padding:0.2rem; border:0.05rem white solid; width:fit-content;" class = "btn">.json으로 변환하기</p></label>
+            <button id = "btn_convert" style = "display: none;" onclick = "convertToRMP();"></button>
+            <label for = "btn_load"><p style = "padding:0.2rem; border:0.05rem white solid; width:fit-content;" class = "btn">.json 파일 불러오기</p></label>
+            <button id = "btn_load" style = "display: none;" onclick = "loadRMP();"></button>
+        </div>
+        <div style = "display:flex; justify-content: center;">
             <div id = "map_editor" style = "margin-right: 0.7rem;text-align: center;">
-                <h5 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">MAP SET</h5>
-                <input id = "mapname" type = "text" placeholder="map name" style = "margin-bottom: 0.7rem;">
+               
             </div>
             <div id = "tile_editor">
-                <h5 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">WALL TILE SET</h5>
-                <div id = "wall_tile_set"></div>
-                <button id = "btn_add_tile" onclick="OPEN_ADDFILE_MODAL();">ADD TILE</button>
-
-                <h5 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">FLOOR TILE SET</h5>
-                <div id = "floor_tile_set"></div>
-                <button id = "btn_add_tile" onclick="OPEN_ADDFILE_MODAL();">ADD TILE</button>
+                <div>
+                    <h3 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">WALL TILES</h3>
+                    <div id = "wall_tile_set"></div>
+                    <button id = "btn_add_wall_tile" class = "btn" onclick="openAddTileModal(WALL);">ADD TILE</button>
+                </div>
+                <div style = "margin-top: 1.5rem;">    
+                    <h3 style = "text-align: center; margin: 0rem 0rem 0.5rem 0rem;">FLOOR TILES</h3>
+                    <div id = "floor_tile_set"></div>
+                    <button id = "btn_add_floor_tile" class = "btn" onclick="openAddTileModal(FLOOR);">ADD TILE</button>
+                </div>    
             </div>
-        </div>
-        <div style = "display: flex;">
-            <label for = "btn_convert"><p style = "margin-right:0.5rem;padding:0.2rem; border:0.05rem white solid; width:fit-content;">.json으로 변환하기</p></label>
-            <button id = "btn_convert" style = "display: none;" onclick = "CONVERT_RMP();"></button>
-            <label for = "btn_load"><p style = "padding:0.2rem; border:0.05rem white solid; width:fit-content;">.json 파일 불러오기</p></label>
-            <button id = "btn_load" style = "display: none;" onclick = "LOADING_RMP();"></button>
         </div>
     </body>
 </html>

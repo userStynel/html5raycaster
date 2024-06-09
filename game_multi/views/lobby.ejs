@@ -3,114 +3,150 @@
     <head>
         <title>hello <%=name%></title>
         <link rel = "stylesheet" href = "/style/lobby.css">
+        <link rel = "stylesheet" href ="/style/common.css">
         <script src = "/scripts/socket.io.js"></script>
     </head>
-    <body style = "background: #101010; color:white;">
-        <div style="margin-bottom: 1rem;border-bottom: 0.1rem white solid;">
-            <button id = "btn_refresh" onclick = "refresh();" style = "display:none"></button>
-            <div style = "display: flex;align-items: center;">
-                <h3 style = "margin-right: 1rem;">Room List</h3>
-                <label for = "btn_refresh"><p style = "border: 0.5px white solid;padding: 0.1rem 0.5rem 0.1rem 0.5rem;"> 새로고침 🔄</p></label>
+    <body class = "background">
+        <div id = "room_list_container">
+            <h3>ROOM LIST</h3>
+            <div id = "room_list_container_content">
+                <div id = "room_list_table">
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Players</th>
+                            <th>Password</th>
+                        </tr>
+                        <tr class = "roominfo_tr">
+                            <td>design test #2</td>
+                            <td>0 / 15</td>
+                            <td>🔒</td>
+                        </tr>
+                        <tr class = "roominfo_tr">
+                            <td>design test #2</td>
+                            <td>0 / 15</td>
+                            <td>🔒</td>
+                        </tr>
+                        <tr class = "roominfo_tr">
+                            <td>design test #2</td>
+                            <td>0 / 15</td>
+                            <td>🔒</td>
+                        </tr>
+                    </table>
+                </div>
+                <div id = "room_buttons_container">
+                    <div class = "room_buttons" id = "btn_refresh">Refresh</div>
+                    <div class = "room_buttons" id = "btn_joinroom">Join Room</div>
+                    <div class = "room_buttons" id = "btn_createroom">Create Room</div>
+                </div>
             </div>
-            <ol id = "roomList">
-
-            </ol>
         </div>
-        <div style = "border: 0.5px white solid;width: fit-content;padding: 0.3rem;">
-            <a href = "/makingRoom">방 만들기</a>
-        </div>
-        <!--
-        <div>
-            <h5 style = "text-align:center;" draggable = "false">CHATTING</h5>
-            <div id = "chatbox" style = "height:200px; overflow:hidden;"></div>
-                <form action = "javascript:sendMSG()">
-                    <div style = "display: flex;">
-                    <input type = "text" id = 'msg' style = "background: none; border: none; border-bottom: 1px white solid;
-                    color: white; text-align: center; margin-right:0.5rem" autocomplete="off"><label for = "abc"> 
-                    <div style = "border: 0.5px white solid; color: white;
-                    padding-left:0.5rem; padding-right:0.5rem; width: fit-content;"> OK </div> </label>
-                    <input id = "abc" type="submit" value="ok" style = "display:none;">
-                    </div>
-                </form>
-        </div>
-        <div>
-            <h5> USER LIST </h5>
-        </div>
-        -->
     </body>
     <script>
+        function makeTRelementFromRoomInfo(roomInfo){ // roomInfo: {hash, title, maxPlayer, nowPlayer, isPasswordSet}
+            let tr = document.createElement('tr');
+            tr.setAttribute("class", "roominfo_tr");
+            let td_title = document.createElement('td');
+            td_title.textContent = roomInfo.title;
+            let td_players = document.createElement('td');
+            td_players.textContent = `${roomInfo.nowPlayer} / ${roomInfo.maxPlayer}`;
+            let td_password = document.createElement('td');
+            td_password.textContent = (roomInfo.isPasswordSet) ? '🔒' : '';
+            
+            tr.append(td_title);
+            tr.append(td_players);
+            tr.append(td_password);
+            tr.addEventListener('click', ()=>{
+                selectedHash = roomInfo.hash;
+                isPasswordSet = roomInfo.isPasswordSet;
+            })
+            return tr;
+        }
+
+        function tryingJoinRoom(roomHash, roomPassword){
+            socket.emit('trying_connect_room_request', {roomHash: roomHash, roomPassword: roomPassword});
+        };
+
+        function refresh(){
+            socket.emit('refresh_roomlist_request', '');
+        };
+
+        function updateRoomList(){
+            let table = document.querySelector('#room_list_table>table');
+            let tbody = table.children[0];
+            while(tbody.children.length != 1){ // remove all list from table
+                let lastIndex = tbody.children.length - 1;
+                tbody.children[lastIndex].remove();
+            }
+            for(let roomInfo of roomList){
+               let tr = makeTRelementFromRoomInfo(roomInfo);
+               tbody.append(tr);
+            }
+        };
+
+        let selectedHash = '';
+        let isPasswordSet = false;
         var socket = io();
         let roomList = "<%= JSON.stringify(roomList)%>";
         var name = '<%=name%>'
         let rl = document.getElementById('roomList');
         roomList = roomList.replaceAll('&#34;', '\"');
         roomList = JSON.parse(roomList);
-        function tryingJoin(hash, password){
-            socket.emit('trying_connect_room_request', {hash: hash, password: password});
-        };
-        function updateRoomList(){
-            while(rl.hasChildNodes()){rl.removeChild(rl.firstChild);};
-            for(let room of roomList){
-                let btn = document.createElement('button');
-                btn.id = `join_btn_${room['hash']}`;
-                btn.addEventListener('click', ()=>{
-                    let password = '';
-                    if(room['isPassword'])
-                        password = prompt('Enter the password');
-                    tryingJoin(room['hash'], password);
-                })
-                btn.style.display = 'none';
-                let label = document.createElement('label');
-                label.htmlFor = `join_btn_${room['hash']}`;
-                let p = document.createElement('li');
-                p.textContent = `${room['title']} | ${room['nowPlayer']} / ${room['maxPlayer']} | ` + (room['isPassword'] ?'🔒':'');
-                label.appendChild(p);
-                rl.appendChild(label);
-                rl.appendChild(btn);
-                /*
-                let a = document.createElement('a');
-                a.href = `/game?room=${room['hash']}`;
-            a.appendChild(p);    
-            rl.appendChild(a);
-            console.log(room['isPassword']);*/
-            }
-        };
-        updateRoomList();
-        socket.emit('firstJoin', {type: 'lobby', name: name});
-        socket.on('MSG', (data)=>{
-            let chatbox  = document.getElementById('chatbox');
-            let p = document.createElement('p');
-            p.setAttribute('style', 'margin: 0px;')
-            // sender = data.sender;
-            text = data.text;
-            p.textContent = `${text}`;
-            chatbox.appendChild(p);
-            chatbox.scrollTop = chatbox.scrollHeight;
-            console.log(chatbox.scrollTop, chatbox.scrollHeight);
+
+        document.getElementById('btn_createroom').addEventListener('click', ()=>{
+            window.location.href = '/makingRoom';
         });
+
+        document.getElementById('btn_refresh').addEventListener('click', ()=>{
+            refresh();
+        });
+
+        document.getElementById('btn_joinroom').addEventListener('click', ()=>{
+            if(selectedHash != ''){
+                if(isPasswordSet){
+                    let pw = prompt('Enter Password');
+                    tryingJoinRoom(selectedHash, pw);
+                }
+                else {
+                    tryingJoinRoom(selectedHash, '');
+                }
+            }
+        });
+
+        updateRoomList();
+
+        socket.emit('client_joined_lobby', {userName: name});
+
         socket.on('refresh_roomlist_response', (data)=>{
             roomList = data;
             updateRoomList();
-        });
-        socket.on('trying_connect_room_response', (data)=>{
-            if(data.ret.result)
-            {
-                window.location.href = `/game?room=${data.hash}&key=${data.ret.key}`;
+        });  
+
+        socket.on('trying_connect_room_response', (data)=>{ // data: {result:{result: bool, errcode: number, key: string}, roomHash:string}
+            if(data.result.result){
+                let form = document.createElement('form');
+                form.setAttribute('method', 'POST');
+                form.setAttribute('action', '/game');
+                form.hidden = true;
+                let input_hash = document.createElement('input');
+                input_hash.setAttribute('type', 'text');
+                input_hash.setAttribute('name', 'room');
+                input_hash.value = data.roomHash;
+                let input_key = document.createElement('input');
+                input_key.setAttribute('type', 'text');
+                input_key.setAttribute('name', 'key');
+                input_key.value = data.result.key;
+                form.append(input_hash);
+                form.append(input_key);
+                document.body.appendChild(form);
+                form.submit();
             }
             else{
-                if(data.ret.errcode == 1)
+                if(data.result.errcode == 1)
                     alert('This room is full');
-                else if(data.ret.errcode == 2)
+                else if(data.result.errcode == 2)
                     alert('Wrong password');
             }
         });
-        function sendMSG(){
-            let text = document.getElementById('msg').value;
-            document.getElementById('msg').value = '';
-            socket.emit('sendMSG', text);
-        }
-        function refresh(){
-            socket.emit('refresh_roomlist_request', '');
-        }
     </script>
 </html>

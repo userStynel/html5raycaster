@@ -8,4 +8,4 @@ const KEY = {
     TURN_BACK:64
 }
 
-exports.key = KEY;
+//exports.key = KEY;

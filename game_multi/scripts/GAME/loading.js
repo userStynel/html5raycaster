@@ -1,4 +1,4 @@
-function Loading_Wall(src){
+function loadWall(src){
     return new Promise((resolve, reject)=>{
         let img = new Image();
         img.src = src;
@@ -20,7 +20,7 @@ function Loading_Wall(src){
     });
 }
 
-function Loading_Floor(src){
+function loadFloor(src){
     return new Promise((resolve, reject)=>{
         let img = new Image();
         img.src = src;
@@ -42,7 +42,7 @@ function Loading_Floor(src){
     });
 }
 
-function Loading_Sprite(src){
+function loadSprite(src){
     return new Promise((resolve, reject)=>{
         let img = new Image();
         img.src = src;
@@ -64,7 +64,7 @@ function Loading_Sprite(src){
     });
 }
 
-function Loading_UI(src){
+function loadUI(src){
     return new Promise((resolve, reject)=>{
         let img = new Image();
         img.src = src;
@@ -75,7 +75,7 @@ function Loading_UI(src){
     });
 }
 
-function LOADING_Character(src){
+function loadCharacter(src){
     return new Promise((resolve, reject)=>{
         let img = new Image();
         img.src = src;
@@ -97,7 +97,7 @@ function LOADING_Character(src){
     });
 }
 
-function Loading_Image(wall_tiles, floor_tiles, sprite_tiles){
+function loadImage(wall_tiles, floor_tiles, sprite_tiles){
     let ui_promises = [];
     let character_promies = [];
 
@@ -118,7 +118,7 @@ function Loading_Image(wall_tiles, floor_tiles, sprite_tiles){
     Promise.all(character_promies).then(()=>{character_loaded = true});
 }
 
-function IsImageFileLoaded(){
+function isImageFileLoaded(){
     return (wall_loaded && floor_loaded && ui_loaded && character_loaded && sprite_loaded);
 }
 
@@ -146,9 +146,3 @@ function setEmptyMapAndSpriteData(){
     map = [];
     sprite = [];
 }
-
-/*
-function Loading_ANIMATION(){
-    ANIMATION_LIST['gun_anim'] = new spriteAnimation('gun_anim', {width: 256, height: 159}, 0.25);
-}
-*/

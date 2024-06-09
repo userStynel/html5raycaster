@@ -3,6 +3,7 @@ function ACTIVE_PREUPDATE_EVENT(){
         socket.emit('keyBuffer', keyBuffer);
     })
 }
+
 function ACTIVE_UPDATE_EVENT(){
     socket.on('update', (game_status)=>{
         unpackGameStatus(game_status);
@@ -32,15 +33,6 @@ function ACTIVE_GAMERESULT_EVENT(){
         else alert('레드팀 승리!');
     });
 }
-
-
-let INGAME_SOCKET_EVENTS = {
-    pre_update: ACTIVE_PREUPDATE_EVENT,
-    update: ACTIVE_UPDATE_EVENT,
-    kill: ACTIVE_KILL_EVENT,
-    game_over: ACTIVE_GAMEOVER_EVENT,
-    game_result: ACTIVE_GAMERESULT_EVENT
-};
 
 function ACTIVE_INGAME_EVENT(){
     for(let event in INGAME_SOCKET_EVENTS)
@@ -116,5 +108,13 @@ function ADD_CLIENT_SOCKET_EVENT(){
 
     socket.on('unvalid_map_file', ()=>{
         alert('맵 파일을 읽을 수 없습니다!');
-    })
+    });
 }
+
+let INGAME_SOCKET_EVENTS = {
+    pre_update: ACTIVE_PREUPDATE_EVENT,
+    update: ACTIVE_UPDATE_EVENT,
+    kill: ACTIVE_KILL_EVENT,
+    game_over: ACTIVE_GAMEOVER_EVENT,
+    game_result: ACTIVE_GAMERESULT_EVENT
+};

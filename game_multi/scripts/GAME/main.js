@@ -1,4 +1,4 @@
-function Init(){
+function init(){
     game_canvas.width = 15 * 40;
     game_canvas.height = 600;
     
@@ -12,9 +12,8 @@ function Init(){
     socket.emit('firstJoin', {type:'game', hash: hash, name:name});
 }
 
-function DrawMap(){
+function drawMap(){
     map_ctx.clearRect(0, 0, map_canvas.width, map_canvas.height);
-    // let colors = ["black", "blue", "green", "yellow", "purple"]; 
     for(let y = 0; y<HEIGHT; y++){
         for(let x = 0; x<WIDTH; x++){
             if(map[y][x] >= 1) map_ctx.fillStyle = WALL_COLOR;
@@ -26,12 +25,11 @@ function DrawMap(){
     }
 }
 
-function unpackGameStatus(game_status){
+function unpackGameStatus(gameStatus){
     others = [];
     let idx = 0;
-   while(game_status[idx] != undefined)
-   {
-        let status = game_status[idx];
+    while(gameStatus[idx] != undefined){
+        let status = gameStatus[idx];
         if(status.id == socket.id){
             player.unpack(status.data);
         }
@@ -41,11 +39,10 @@ function unpackGameStatus(game_status){
         idx += 1;
     }
 }
-
+        
 function update(){
-    if(IsImageFileLoaded()){
+    if(isImageFileLoaded()){
         player.update();
-        //draw();
         Render_Game();
         hpbar.setAttribute('style', `--width:${player.health}`);
     }

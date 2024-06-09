@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>hello <%=name%></title>
+        <title>GAME PLAY!</title>
         <link rel = "stylesheet" href = "/style/hpbar.css">
+        <link rel = "stylesheet" href = "/style/common.css">
         <script src = "/scripts/socket.io.js"></script>
         <% if(admin) { %> 
             <style>
@@ -16,7 +17,7 @@
             </style>
         <% } %>
     </head>
-    <body style = "background: #101010; color:white; width:fit-content; margin:0 auto;" onload = "Init()">
+    <body class = "background" style ="width:fit-content; margin:0 auto;" onload = "init()">
         <div style = "display: flex;">
             <div style = "margin-right: 0.5rem;" id = "situation_panel"> 
                 <div id = "hpbar" style = "--width: 50;" >
@@ -95,6 +96,7 @@
             </div>
         </div>
     </body>
+
     <% if(admin) { %>
         <script src = "/scripts/GAME/adminconfig.js"></script>
         <script>ADMIN_INIT();</script>
@@ -135,7 +137,6 @@
             if(!playMode)
                 socket.emit('move-team', team);
         }
-
 
         function checkMode(){
             let situation_panel = document.getElementById('situation_panel');
@@ -191,6 +192,6 @@
     <script src = "/scripts/GAME/sprite.js"></script>
     <script src = "/scripts/GAME/renderer.js"></script>
     <script src = "/scripts/GAME/socket_events_client.js"></script>
-    <script src = "/scripts/GAME/event.js"></script>
+    <script src = "/scripts/GAME/windowEvent.js"></script>
     <script src = "/scripts/GAME/main.js"></script>
 </html>

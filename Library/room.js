@@ -1,4 +1,4 @@
-const userInfo  = require('./userInfo').userInfo;
+const UserInfo  = require('./userInfo').UserInfo;
 
 class Room{
     constructor(hash, title, password, maxPlayer){
@@ -6,21 +6,21 @@ class Room{
         this.users = {};
         this.map;
         this.title = title; // 방제
-        this.userCount = 0;
+        this.numOfUsers = 0;
         this.maxPlayer = maxPlayer;
         this.password = password;
         this.captain; // 방장
-        this.clearflag = false;
-        this.playMode = false;
+        this.roomClearFlag = false;
+        this.isPlayMode = false;
         this.queue = {} // 대기 큐
     }
-    makingHash(){
+    static makingHash(){
         let ret = new String();
         for(let i = 0; i<5; i++)
             ret = ret.concat(String.fromCharCode(Math.floor(Math.random()*26)+97));
         return ret;
     }
-    tryingJoin(id, password){
+    tryingJoin(password){
         if(password === null || password == this.password){
             if(this.userCount + 1 <= this.maxPlayer){
                 return true;
@@ -32,20 +32,20 @@ class Room{
             return false;
         }
     }
-    Join(id){
-        let name = mappingSocketToName[id];
+    join(socketID){
+        let name = mapSocketToUserName[socketID];
         this.userCount += 1;
         if(this.userCount == 1)
             this.captain = id;
-        this.users[id] = new userInfo(name, null);
+        this.users[socketID] = new UserInfo(name, null);
     }
-    Leave(id){
+    leave(socketID){
         this.userCount -= 1;
-        delete this.users[id];
-        if(id == this.captain)
+        delete this.users[socketID];
+        if(socketID == this.captain)
             this.clearflag = true;
     }
-    GameStatus(){
+    getGameStatus(){
         let ret = [];
         for(let id in this.users){
             let user = this.users[id];
@@ -55,7 +55,7 @@ class Room{
         }
         return ret;
     }
-    preupdate(){
+    preUpdate(){
         io.to(this.hash).emit('pre_update');
         this.update();
     }
@@ -87,7 +87,7 @@ class Room{
         }
         else io.to(this.hash).emit('update', ret);
     }
-    serializeUL(){
+    getUserList(){
         let ret = [];
         for(let id in this.users){
             let user = this.users[id];
@@ -101,7 +101,7 @@ class Room{
             ret['result'] = false; ret['errcode'] = 1;
         }
         else if(password == this.password){
-            let key = this.makingHash();
+            let key = Room.makingHash();
             this.queue[key] = true;
             ret['result'] = true;
             ret['key'] = key
@@ -111,14 +111,12 @@ class Room{
         }
         return ret;
     }
-    auth(param){
-        for(let id in this.queue){
-            if(param == id){
-                delete this.queue[id];
-                return true;
-            }
+    auth(authKey){
+        if(this.queue[authKey]){
+            delete this.queue[authKey];
+            return true;
         }
-        return false;
+        else return false;
     }
 }
 

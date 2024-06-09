@@ -1,5 +1,4 @@
-var mappingSocketToName = {};
-var mappingNameToSocket = {};
+var mapSocketIDToUserName = {};
 
 var express = require('express');
 var http = require('http');
@@ -7,6 +6,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var static = require('serve-static');
 
+const FPS = 32;
 const router = require('./Library/routing').router;
 const SOCKET_EVENTS = require('./Library/socketEvents').SOCKET_EVENTS;
 const RoomManager = require('./Library/roomManager').RoomManager;
@@ -21,10 +21,10 @@ app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 app.set('port', PORT);
 
+app.use(static(__dirname+'/game_multi'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(cookieParser());
-app.use(static(__dirname+'/game_multi'));
 app.use('/', router);
 
 var server = http.createServer(app);
@@ -32,44 +32,34 @@ var io = require('socket.io')(server);
 
 global.io = io;
 global.roomManager = roomManager;
-global.mappingNameToSocket = mappingNameToSocket;
-global.mappingSocketToName = mappingSocketToName;
+global.mapUserNameToSocket = mapUserNameToSocket;
+global.mapSocketToUserName = mapSocketToUserName;
+
+function wholeLOOP(){
+    roomManager.checkAndCleanEmptyRoom();
+    roomManager.process();
+    setTimeout(wholeLOOP, 1000/FPS);
+}
 
 server.listen(PORT, function(){
     console.log('server is on!');
+    wholeLOOP();
+    console.log('room manager is running!');
 });
 
 io.on('connection', (socket)=>{
-    socket.on('firstJoin', (data)=>{
-        mappingNameToSocket[data.name] = socket; 
-        mappingSocketToName[socket.id] = data.name;
-        if(data.type == 'lobby'){
-            socket.join('lobby');
-            socket.on('sendMSG', (text)=>{
-                io.to('lobby').emit('MSG', {text: text});
-            });
-            socket.on('trying_connect_room_request', (data)=>{
-                let ret = roomManager.roomlist[data.hash].checkConnection(data.password);
-                socket.emit('trying_connect_room_response',{ret:ret, hash:data.hash});
-            });
-            socket.on('refresh_roomlist_request', ()=>{
-                socket.emit('refresh_roomlist_response', roomManager.serializeRoomList());
-            });
-        }
-        else if(data.type == 'game'){
-            roomManager.roomlist[data.hash].Join(socket.id);
-            socket.join(data.hash);
-            io.to(data.hash).emit('user_coming', roomManager.roomlist[data.hash].serializeUL());
-            socket.emit('welcome', {id:socket.id, playmode: roomManager.roomlist[data.hash].playMode, map:roomManager.roomlist[data.hash].map});
-            SOCKET_EVENTS(socket, data.hash);
-        }
+    socket.on('client_joined_lobby', (data)=>{
+        mapSocketIDToUserName[socket.id] = data.userName;
+        socket.on('trying_connect_room_request', (data)=>{ /*data: {roomHash: string, roomPassword: string} */
+            let result = roomManager.roomList[data.roomHash].checkConnection(data.roomPassword);
+            socket.emit('trying_connect_room_response',{result:result, roomHash:data.roomHash});
+        });
+        socket.on('refresh_roomlist_request', ()=>{
+            socket.emit('refresh_roomlist_response', roomManager.getRoomInfoList());
+        });
+    });
+    socket.on('client_make_room', (data) => {
+        let roomHash = data.roomHash;
+        roomManager.roomList[roomHash] = 
     });
 })
-
-function wholeLOOP(){
-    roomManager.CheckAndClean();
-    roomManager.Process();
-    setTimeout(wholeLOOP, 1000/32);
-}
-
-wholeLOOP();

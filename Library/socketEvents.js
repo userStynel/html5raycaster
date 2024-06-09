@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 function SOCKET_EVENTS(socket, hash){
-    let room = roomManager.roomlist[hash];
+    let room = roomManager.roomList[hash];
     
     socket.on('input', (data)=>{
         let hash = data.hash;
@@ -17,13 +17,13 @@ function SOCKET_EVENTS(socket, hash){
     });
 
     socket.on('disconnect', (reason)=>{
-        if(roomManager.roomlist[hash]){
-            roomManager.roomlist[hash].Leave(socket.id);
-            io.to(hash).emit('user_leaving', roomManager.roomlist[hash].serializeUL());
+        if(roomManager.roomList[hash]){
+            roomManager.roomList[hash].leave(socket.id);
+            io.to(hash).emit('user_leaving', roomManager.roomList[hash].getUserList());
         }
-        let name = mappingSocketToName[socket.id];
-        delete mappingNameToSocket[name]; 
-        delete mappingSocketToName[socket.id];
+        let name = mapSocketToUserName[socket.id];
+        delete mapSocketToUserName[name]; 
+        delete mapUserNameToSocket[socket.id];
     });
 
     socket.on('sendMSG', (text)=>{
@@ -110,4 +110,5 @@ function SOCKET_EVENTS(socket, hash){
         io.to(hash).emit('game_finish', roomManager.roomlist[hash].serializeUL());
     })
 }
+
 exports.SOCKET_EVENTS = SOCKET_EVENTS;

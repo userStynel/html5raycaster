@@ -6,7 +6,7 @@ class spriteAnimation{
         this.size = size;
         this.duration;
     }
-    SLICE(idx){
+    slice(idx){
         let that = this;
         return new Promise((resolve, reject)=>{
             let i = idx;
@@ -23,7 +23,7 @@ class spriteAnimation{
             }
         });
     }
-    LOAD(){
+    load(){
         return new Promise((resolve, reject)=>{
             let img = new Image();
             let that = this;
@@ -33,7 +33,7 @@ class spriteAnimation{
                 let count = (that.fullIMG.width / that.size.width) | 0;
                 let slicePromises = [];
                 for(let i = 0; i<count; i++)
-                    slicePromises.push(SLICE(i));
+                    slicePromises.push(slice(i));
                 Promise.all(slicePromises);
                 resolve();
             };

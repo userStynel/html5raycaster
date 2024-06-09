@@ -1,6 +1,3 @@
-var WIDTH = 32
-var HEIGHT = 17
-
 const SIZE = 8
 const FRAME_RATE = 32;
 
@@ -9,6 +6,9 @@ const PLAYER_COLOR = "green"
 
 const WALL_COLOR = "blue"
 const GROUND_COLOR = "black"
+
+var WIDTH = 32
+var HEIGHT = 17
 
 const h = 600;
 
@@ -26,7 +26,6 @@ var sprites = [];
 var keyBuffer = 0;
 var zBuffer = [];
 
-
 var wall_loaded = false;
 var sprite_loaded = false;
 var floor_loaded = false;
@@ -42,8 +41,8 @@ var ui_tile_img = [];
 var character_tile_img = [];
 var character_tile_imgData = [];
 
-var wall_tile_imgData = [];
-var floor_tile_imgData = [];
-var sprite_tile_imgData = [];
+var arrayOfWallTileData = [];
+var arrayOfFloorTileData = [];
+var arrayOfSpriteTileData = [];
 
 var game_mode = true;
