@@ -32,8 +32,7 @@ var io = require('socket.io')(server);
 
 global.io = io;
 global.roomManager = roomManager;
-global.mapUserNameToSocket = mapUserNameToSocket;
-global.mapSocketToUserName = mapSocketToUserName;
+global.mapSocketIDToUserName = mapSocketIDToUserName;
 
 function wholeLOOP(){
     roomManager.checkAndCleanEmptyRoom();
@@ -60,6 +59,6 @@ io.on('connection', (socket)=>{
     });
     socket.on('client_make_room', (data) => {
         let roomHash = data.roomHash;
-        roomManager.roomList[roomHash] = 
+        //roomManager.roomList[roomHash] = 
     });
 })
