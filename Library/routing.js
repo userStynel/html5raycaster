@@ -18,7 +18,7 @@ router.route('/play').get(function(req, res){
 router.route('/lobby').get(function(req, res){
     var name = req.cookies.name;
     if(req.cookies.name) res.render('lobby', {name: name, roomList: roomManager.getRoomInfoList()});
-    else res.redirect('/');
+    else res.redirect('error');
 });
 
 router.route('/lobby').post(function(req, res){

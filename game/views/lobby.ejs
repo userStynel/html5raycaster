@@ -17,21 +17,6 @@
                             <th>Players</th>
                             <th>Password</th>
                         </tr>
-                        <tr class = "roominfo_tr">
-                            <td>design test #2</td>
-                            <td>0 / 15</td>
-                            <td>🔒</td>
-                        </tr>
-                        <tr class = "roominfo_tr">
-                            <td>design test #2</td>
-                            <td>0 / 15</td>
-                            <td>🔒</td>
-                        </tr>
-                        <tr class = "roominfo_tr">
-                            <td>design test #2</td>
-                            <td>0 / 15</td>
-                            <td>🔒</td>
-                        </tr>
                     </table>
                 </div>
                 <div id = "room_buttons_container">
@@ -94,7 +79,7 @@
         roomList = JSON.parse(roomList);
 
         document.getElementById('btn_createroom').addEventListener('click', ()=>{
-            window.location.href = '/makingRoom';
+            window.location.replace('/makingRoom');
         });
 
         document.getElementById('btn_refresh').addEventListener('click', ()=>{

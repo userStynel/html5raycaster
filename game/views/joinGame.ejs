@@ -2,20 +2,32 @@
     
 </body>
 <script>
-    let form = document.createElement('form');
-    form.setAttribute('method', 'POST');
-    form.setAttribute('action', '/game');
-    form.hidden = true;
-    let input_hash = document.createElement('input');
-    input_hash.setAttribute('type', 'text');
-    input_hash.setAttribute('name', 'room');
-    input_hash.value = '<%=hash%>'
-    let input_key = document.createElement('input');
-    input_key.setAttribute('type', 'text');
-    input_key.setAttribute('name', 'key');
-    input_key.value ='<%=key%>'
-    form.append(input_hash);
-    form.append(input_key);
-    document.body.appendChild(form);
-    form.submit();
+    let room = '<%=hash%>';
+    let key = '<%=key%>';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/game", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            console.log(xhr.response);
+        }
+    };
+    xhr.send(`room=${room}&key=${key}`);
+
+    // let form = document.createElement('form');
+    // form.setAttribute('method', 'POST');
+    // form.setAttribute('action', '/game');
+    // form.hidden = true;
+    // let input_hash = document.createElement('input');
+    // input_hash.setAttribute('type', 'text');
+    // input_hash.setAttribute('name', 'room');
+    // input_hash.value = '<%=hash%>'
+    // let input_key = document.createElement('input');
+    // input_key.setAttribute('type', 'text');
+    // input_key.setAttribute('name', 'key');
+    // input_key.value ='<%=key%>'
+    // form.append(input_hash);
+    // form.append(input_key);
+    // document.body.appendChild(form);
+    // form.submit();
 </script>
