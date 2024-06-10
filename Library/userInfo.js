@@ -1,4 +1,4 @@
-const KEY = require('../game_multi/scripts/common').key;
+const KEY = require('../game/scripts/common').key;
 
 function fixAngular(rad){ // 각도를 0 ~ 360도 (0 ~ Pi/2 라디안)로 고정시킴
     if(0 <= rad && rad < Math.PI * 2)

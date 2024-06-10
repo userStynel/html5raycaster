@@ -16,12 +16,12 @@ var roomManager = new RoomManager();
 
 const PORT = process.env.PORT || 3000;
 
-app.set('views', __dirname+'/game_multi/views');
+app.set('views', __dirname+'/game/views');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 app.set('port', PORT);
 
-app.use(static(__dirname+'/game_multi'));
+app.use(static(__dirname+'/game'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(cookieParser());

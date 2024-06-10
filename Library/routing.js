@@ -7,6 +7,10 @@ router.route('/').get(function(req, res){
     res.render('enter', {session: req.session});
 });
 
+router.route('/play').get(function(req, res){
+    res.render('play');
+});
+
 router.route('/lobby').get(function(req, res){
     var name = req.cookies.name;
     if(req.cookies.name) res.render(res.render('lobby', {name: name, roomList: roomManager.getRoomInfoList()}));
