@@ -10,14 +10,15 @@
     <body class = "background">
         <div class = "container-fluid">
             <header>
-                <h2 class = "text-center">HTML5 RAYCASTER</h2>
+                <h2 class = "text-center">RAYGROUND.io</h2>
             </header>
         </div>
         <div class = "container" style = "margin-top: 0.7rem;">
             <div class = "row text-center" style = "margin-bottom:0.5rem;">
                 <div class = "col">
-                    <img src = "./picc.jpg" style = "height: 256px; width: 205px;">
-                    <h5>CHOOSE NICKNAME</h5>
+                    <img src = "./character.png" style = "height: 256px; width: 256px;">
+                    <p style = "margin-top: 1rem; font-weight: bold;">Welcome to our journey <br> Before starts the journey let me know what your name is </p>
+                    <h5 style = "margin-top: 1rem;">MY NAME IS ...</h5>
                     <form action = "/lobby" style = "width:fit-content; margin: 0 auto;" method="POST">
                         <div style = "margin-bottom: 0.5rem;">
                             <input type="text" name="name" id="name" required
@@ -25,7 +26,7 @@
                             color: white; text-align: center;" autocomplete="off">
                         </div>
                         <label for = "abc"> <div style = "border: 0.5px white solid; color: white;
-                            padding-left:0.7rem; padding-right:0.7rem;"> OK </div> </label>
+                            padding-left:0.7rem; padding-right:0.7rem;"> JOIN </div> </label>
                         <input id = "abc" type="submit" value="ok" style = "display:none;";>
                     </form>
                 </div>
@@ -38,7 +39,7 @@
         <div class = "container">
             <footer class = "text-center">
                 <p>
-                    <a href = "/mapeditor">MAP EDITOR</a>
+                    
                 </p>
             </footer>
         </div>

@@ -34,16 +34,8 @@ global.io = io;
 global.roomManager = roomManager;
 global.mapSocketIDToUserName = mapSocketIDToUserName;
 
-function wholeLOOP(){
-    roomManager.checkAndCleanEmptyRoom();
-    roomManager.process();
-    setTimeout(wholeLOOP, 1000/FPS);
-}
-
 server.listen(PORT, function(){
     console.log('server is on!');
-    wholeLOOP();
-    console.log('room manager is running!');
 });
 
 io.on('connection', (socket)=>{
@@ -64,4 +56,4 @@ io.on('connection', (socket)=>{
         let roomHash = data.roomHash;
         roomList[roomHash].socket = socket;
     });
-})
+});
