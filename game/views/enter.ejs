@@ -52,8 +52,12 @@
                         window.location.replace('/lobby');
                     }
                 };
-                xhr.send(`name=${name}`);
+                if(name != '')
+                    xhr.send(`name=${name}`);
             };
+            window.addEventListener('keydown', (event)=>{
+                if(event.code == 'Enter') clickJOINBtn();
+            })
         </script>
     </body>
 </html>

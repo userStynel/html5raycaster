@@ -8,28 +8,49 @@
     <body class = "background">
         <div id = "makingroom_container">
             <h2>Create Room</h2>
-            <form id = "roominfo_form" action = '/process/tryingmakeroom' method="POST">
-                <p>Room Name: <input type = "text" name = "title" required autocomplete="off"> </p>
-                <p>Password: <input type = "text" name = "password" autocomplete="off"></p>
+            <div>
+                <p>Room Name: <input type = "text" id = "title" required autocomplete="off"> </p>
+                <p>Password: <input type = "text" id = "password" autocomplete="off"></p>
                 <p>Max players: 
-                    <select form = "roominfo_form" name = "maxPlayer">
+                    <select form = "roominfo_form" id = "maxPlayer">
                         <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
                         <option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option>
                         <option>19</option><option>20</option>
                     </select>
                 </p>
-                <input id = "hidden_btn_submit" type = "button" hidden>
-                <input id = "hidden_btn_submit" type = "submit">
                 <div id = "makingroom_button_container">
-                   
                     <label for = "hidden_btn_cancel">
-                        <div class = "btn">cancel</div>
+                        <div class = "btn" onclick = "clickCancelButton()">cancel</div>
                     </label>
                     <label for = "hidden_btn_submit">
-                        <div class = "btn">create</div>
+                        <div class = "btn" onclick = "clickCreateButton()">create</div>
                     </label>
                 </div>
-            </form>
+            </div>
         </div>
     </body>
+    <script>
+        function clickCancelButton(){
+            window.location.replace('/lobby');
+        }
+        function clickCreateButton(){
+            //title, password, maxPlayer
+            let xhr = new XMLHttpRequest();
+            let title = document.getElementById('title').value;
+            let password = document.getElementById('password').value;
+            let maxPlayer = document.getElementById('maxPlayer').value;
+            xhr.open("POST", "/process/tryingmakeroom", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    let obj = JSON.parse(xhr.responseText);
+                    let key = obj.key;
+                    let hash = obj.hash;
+                    window.location.replace(`/game?room=${hash}&key=${key}`);
+                }
+            };
+            xhr.send(`title=${title}&password=${password}&maxplayer=${maxPlayer}`);
+
+        }
+    </script>
 </html>

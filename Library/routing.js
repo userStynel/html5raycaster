@@ -27,7 +27,16 @@ router.route('/lobby').post(function(req, res){
 });
 
 router.route('/game').get(function(req, res){
-    res.render('error');
+    let admin = false;
+    let hash = req.query.room;
+    let key = req.query.key
+    if(roomManager.roomList[hash] === undefined)
+        res.render('error');
+    else if(roomManager.roomList[hash].auth(key)){
+        if(roomManager.roomList[hash].userCount == 0) admin = true; 
+        res.render('game', {name: req.cookies.name, hash: hash, admin: admin});
+    }
+    else res.render('error');
 });
 
 router.route('/game').post(function(req, res){
@@ -51,7 +60,7 @@ router.route('/process/tryingmakeroom').post(function(req, res){
     let hash = roomManager.makingRoom(req.body.title, req.body.password, parseInt(req.body.maxPlayer));
     let result_checkConnection =  roomManager.roomList[hash].checkConnection(req.body.password);
     let key = result_checkConnection.key;
-    res.render('joinGame', {hash: hash, key: key});
+    res.send(JSON.stringify({hash: hash, key: key}));
 });
 
 router.route('/process/convertfile').post(function(req, res){ // in the heat of the night
