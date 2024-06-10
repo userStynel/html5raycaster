@@ -4,7 +4,11 @@ const fs = require('fs');
 const path = require('path');
 
 router.route('/').get(function(req, res){
-    res.render('enter', {session: req.session});
+    res.render('index');
+});
+
+router.route('/enter').get(function(req, res){
+    res.render('enter');
 });
 
 router.route('/play').get(function(req, res){
@@ -13,13 +17,13 @@ router.route('/play').get(function(req, res){
 
 router.route('/lobby').get(function(req, res){
     var name = req.cookies.name;
-    if(req.cookies.name) res.render(res.render('lobby', {name: name, roomList: roomManager.getRoomInfoList()}));
+    if(req.cookies.name) res.render('lobby', {name: name, roomList: roomManager.getRoomInfoList()});
     else res.redirect('/');
 });
 
 router.route('/lobby').post(function(req, res){
     res.cookie('name', req.body.name);
-    res.render('lobby', {name: req.body.name, roomList: roomManager.getRoomInfoList()});
+    res.send('');
 });
 
 router.route('/game').get(function(req, res){
@@ -34,7 +38,7 @@ router.route('/game').post(function(req, res){
         res.render('error');
     else if(roomManager.roomList[hash].auth(key)){
         if(roomManager.roomList[hash].userCount == 0) admin = true; 
-        res.render('main', {name: req.cookies.name, hash: hash, admin: admin});
+        res.render('game', {name: req.cookies.name, hash: hash, admin: admin});
     }
     else res.render('error');
 });

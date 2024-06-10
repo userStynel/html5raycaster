@@ -2,3 +2,7 @@
     background: #101010; 
     color:white;
 }
+
+iframe{
+    border: 0;
+}
