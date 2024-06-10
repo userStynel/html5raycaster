@@ -50,8 +50,11 @@ io.on('connection', (socket)=>{
     socket.on('client_joined_lobby', (data)=>{
         mapSocketIDToUserName[socket.id] = data.userName;
         socket.on('trying_connect_room_request', (data)=>{ /*data: {roomHash: string, roomPassword: string} */
-            let result = roomManager.roomList[data.roomHash].checkConnection(data.roomPassword);
-            socket.emit('trying_connect_room_response',{result:result, roomHash:data.roomHash});
+            let roomHash = data.roomHash;
+            roomList[roomHash].socket.emit('want_to_join', sdpOffer);
+        });
+        socket.on('answer_from_server', (data) => { // master -> client
+            
         });
         socket.on('refresh_roomlist_request', ()=>{
             socket.emit('refresh_roomlist_response', roomManager.getRoomInfoList());
@@ -59,6 +62,6 @@ io.on('connection', (socket)=>{
     });
     socket.on('client_make_room', (data) => {
         let roomHash = data.roomHash;
-        //roomManager.roomList[roomHash] = 
+        roomList[roomHash].socket = socket;
     });
 })
