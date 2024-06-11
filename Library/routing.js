@@ -34,11 +34,12 @@ router.route('/game').get(function(req, res){
         res.render('error');
     else if(roomManager.roomList[hash].auth(key)){
         if(roomManager.roomList[hash].userCount == 0) admin = true; 
-        res.render('game', {name: req.cookies.name, hash: hash, admin: admin});
+        res.render('game', {name: req.cookies.name, hash: hash, admin: true});
     }
     else res.render('error');
 });
 
+/*
 router.route('/game').post(function(req, res){
     let admin = false;
     let hash = req.body.room;
@@ -51,6 +52,7 @@ router.route('/game').post(function(req, res){
     }
     else res.render('error');
 });
+*/
 
 router.route('/makingRoom').get(function(req, res){
     res.render('makingRoom', {name: req.cookies.name});

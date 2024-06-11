@@ -100,7 +100,11 @@
 
     <% if(admin) { %>
         <script src = "/scripts/GAME/adminconfig.js"></script>
-        <script>ADMIN_INIT();</script>
+        <script>
+            ADMIN_INIT();
+            var hash = "<%= hash %>"
+            socket.emit('make_room', {roomHash: hash});
+        </script>
     <% } %>
     <script>
         var name = "<%= name %>";

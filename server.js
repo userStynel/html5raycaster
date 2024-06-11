@@ -52,7 +52,8 @@ io.on('connection', (socket)=>{
             socket.emit('refresh_roomlist_response', roomManager.getRoomInfoList());
         });
     });
-    socket.on('client_make_room', (data) => {
+    socket.on('make_room', (data) => {
+        console.log("server::56::", data);
         let roomHash = data.roomHash;
         roomList[roomHash].socket = socket;
     });
