@@ -7,6 +7,8 @@ const PLAYER_COLOR = "green"
 const WALL_COLOR = "blue"
 const GROUND_COLOR = "black"
 
+const PEER_CONNECTION_CONFIG = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]};
+
 var WIDTH = 32
 var HEIGHT = 17
 

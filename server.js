@@ -43,7 +43,7 @@ io.on('connection', (socket)=>{
         mapSocketIDToUserName[socket.id] = data.userName;
         socket.on('trying_connect_room_request', (data)=>{ /*data: {roomHash: string, roomPassword: string} */
             let roomHash = data.roomHash;
-            roomList[roomHash].socket.emit('want_to_join', sdpOffer);
+            roomManager.roomList[roomHash].socket.emit('want_to_join', sdpOffer);
         });
         socket.on('answer_from_server', (data) => { // master -> client
             
@@ -55,6 +55,9 @@ io.on('connection', (socket)=>{
     socket.on('make_room', (data) => {
         console.log("server::56::", data);
         let roomHash = data.roomHash;
-        roomList[roomHash].socket = socket;
+        roomManager.roomList[roomHash].socket = socket;
     });
+    socket.on('send-offer', (data)=>{
+        console.log("server::61::", data);
+    })
 });

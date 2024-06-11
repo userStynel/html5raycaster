@@ -32,11 +32,9 @@ router.route('/game').get(function(req, res){
     let key = req.query.key
     if(roomManager.roomList[hash] === undefined)
         res.render('error');
-    else if(roomManager.roomList[hash].auth(key)){
-        if(roomManager.roomList[hash].userCount == 0) admin = true; 
-        res.render('game', {name: req.cookies.name, hash: hash, admin: true});
-    }
-    else res.render('error');
+    if(req.query.key != undefined && roomManager.roomList[hash].auth(key))
+        admin = true; 
+    res.render('game', {name: req.cookies.name, hash: hash, admin: admin});
 });
 
 /*

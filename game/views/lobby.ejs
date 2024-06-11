@@ -49,7 +49,7 @@
         }
 
         function tryingJoinRoom(roomHash, roomPassword){
-            socket.emit('trying_connect_room_request', {roomHash: roomHash, roomPassword: roomPassword});
+            window.location.replace(`/game?room=${roomHash}`);
         };
 
         function refresh(){
@@ -106,32 +106,5 @@
             roomList = data;
             updateRoomList();
         });  
-
-        socket.on('trying_connect_room_response', (data)=>{ // data: {result:{result: bool, errcode: number, key: string}, roomHash:string}
-            if(data.result.result){
-                let form = document.createElement('form');
-                form.setAttribute('method', 'POST');
-                form.setAttribute('action', '/game');
-                form.hidden = true;
-                let input_hash = document.createElement('input');
-                input_hash.setAttribute('type', 'text');
-                input_hash.setAttribute('name', 'room');
-                input_hash.value = data.roomHash;
-                let input_key = document.createElement('input');
-                input_key.setAttribute('type', 'text');
-                input_key.setAttribute('name', 'key');
-                input_key.value = data.result.key;
-                form.append(input_hash);
-                form.append(input_key);
-                document.body.appendChild(form);
-                form.submit();
-            }
-            else{
-                if(data.result.errcode == 1)
-                    alert('This room is full');
-                else if(data.result.errcode == 2)
-                    alert('Wrong password');
-            }
-        });
     </script>
 </html>

@@ -59,13 +59,13 @@
                         <% if(admin) { %> 
                         <tr>
                             <td colspan="3" style = "text-align: center;">
-                                <p>맵 선택하기
+                                <p>SELECT MAP
                                     <br>
                                     <select id = "mapselector">
                                     </select>
                                     <input type = "file" id = "map_uploader" style="display:none;">
                                     <div class = "btn">
-                                        <label for = "map_uploader">자작맵 업로드</label>
+                                        <label for = "map_uploader">UPLOAD MAP</label>
                                     </div>
                                 </p>
                                 <button id = "btn-start" onclick = "click_Game_Btn();" style = "display: none;">GAME START!</button>
@@ -97,15 +97,6 @@
             </div>
         </div>
     </body>
-
-    <% if(admin) { %>
-        <script src = "/scripts/GAME/adminconfig.js"></script>
-        <script>
-            ADMIN_INIT();
-            var hash = "<%= hash %>"
-            socket.emit('make_room', {roomHash: hash});
-        </script>
-    <% } %>
     <script>
         var name = "<%= name %>";
         var hash = "<%= hash %>";
@@ -135,7 +126,7 @@
         function sendMSG(){
             let text = document.getElementById('msg').value;
             document.getElementById('msg').value = '';
-            socket.emit('sendMSG', text);
+            // socket.emit('send-message', text);
         }
 
         function moveTeam(team){
@@ -203,4 +194,47 @@
     <script src = "/scripts/GAME/socket_events_client.js"></script>
     <script src = "/scripts/GAME/windowEvent.js"></script>
     <script src = "/scripts/GAME/main.js"></script>
+    <% if(admin) { %>
+    <script src = "/scripts/GAME/adminconfig.js"></script>
+    <script>
+        let peerConnectionsList = [];
+        ADMIN_INIT();
+        var hash = "<%= hash %>"
+        socket.emit('make_room', {roomHash: hash});
+        socket.on('recieve-offer', (offer) => {
+            let idx = peerConnectionsList.length;
+            peerConnectionsList[idx] = new RTCPeerConnection(PEER_CONNECTION_CONFIG);
+            let remoteDesc = new RTCSessionDescription(offer);
+            let answer;
+            peerConnectionsList[idx].setRemoteDescription(remoteDesc);
+            peerConnectionsList[idx].createAnswer().then((param)=>{
+                answer = param;
+                return peerConnectionsList[idx].setLocalDescription(answer);
+            }).then(()=>{socket.emit('send-answer', answer)});
+            peerConnectionsList[idx].addEventListener('icecandidate', (event)=>{
+                if(event.candidate){
+                    socket.emit('new-ice-candidate', event.candidate);
+                }
+            })
+        })
+    </script>
+    <% } else { %>
+    <script>
+        let pc = new RTCPeerConnection(PEER_CONNECTION_CONFIG);
+        let offer;
+        pc.createOffer().then((param)=>{
+            offer = param;
+            return pc.setLocalDescription(offer)
+        }).then(()=>{socket.emit('send-offer', offer)});
+        socket.on('recieve-answer', (answer)=>{
+            let remoteDesc = new RTCSessionDescription(answer);
+            pc.setRemoteDescription(remoteDesc);
+        });
+        pc.addEventListener('icecandidate', (event)=>{
+            if(event.candidate){
+                socket.emit('new-ice-candidate', event.candidate);
+            }
+        });
+    </script>
+    <% } %>
 </html>
